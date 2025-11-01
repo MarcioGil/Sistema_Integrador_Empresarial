@@ -1,0 +1,41 @@
+# Django Framework
+Django==5.0.7
+djangorestframework==3.15.2
+
+# Database (PostgreSQL - opcional, use SQLite para dev)
+# psycopg2-binary==2.9.9  # Requer Visual C++ Build Tools
+# Para PostgreSQL, instale separadamente ou use: pip install psycopg2-binary
+
+# Authentication
+djangorestframework-simplejwt==5.3.1
+
+# CORS Headers
+django-cors-headers==4.3.1
+
+# Environment Variables
+python-decouple==3.8
+
+# Date & Time
+python-dateutil==2.8.2
+
+# Image Processing
+Pillow==11.0.0
+
+# Excel/CSV Export
+openpyxl==3.1.2
+
+# Validation
+django-filter==24.2
+
+# Development Tools
+django-debug-toolbar==4.3.0
+
+# Production Server
+gunicorn==22.0.0
+
+# Timezone
+pytz==2024.1
+
+# Testing
+pytest==8.2.2
+pytest-django==4.8.0
