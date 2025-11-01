@@ -6,6 +6,7 @@ class Departamento(models.Model):
     """Model para departamentos da empresa"""
     
     nome = models.CharField('Nome', max_length=100, unique=True)
+    sigla = models.CharField('Sigla', max_length=10, unique=True)
     descricao = models.TextField('Descrição', blank=True, null=True)
     responsavel = models.ForeignKey(
         'Usuario',
@@ -15,6 +16,8 @@ class Departamento(models.Model):
         related_name='departamentos_responsavel',
         verbose_name='Responsável'
     )
+    email = models.EmailField('E-mail', blank=True, null=True)
+    ramal = models.CharField('Ramal', max_length=10, blank=True, null=True)
     ativo = models.BooleanField('Ativo', default=True)
     data_criacao = models.DateTimeField('Data de Criação', auto_now_add=True)
     data_modificacao = models.DateTimeField('Data de Modificação', auto_now=True)

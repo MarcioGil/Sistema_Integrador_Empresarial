@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'debug_toolbar',
+    'drf_spectacular',
     
     # Local Apps
     'clientes',
@@ -175,6 +176,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DATETIME_FORMAT': '%d/%m/%Y %H:%M:%S',
     'DATE_FORMAT': '%d/%m/%Y',
 }
@@ -241,6 +243,42 @@ INTERNAL_IPS = [
 ]
 
 # =============================================================================
+# DRF SPECTACULAR SETTINGS (Swagger/ReDoc)
+# =============================================================================
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Sistema Integrador Empresarial API',
+    'DESCRIPTION': 'API REST completa para gestão empresarial integrada - Vendas, Financeiro, Estoque, Clientes e mais',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'CONTACT': {
+        'name': 'Márcio Gil',
+        'url': 'https://marciogil.github.io/curriculum-vitae/',
+        'email': 'marciopaivagil@gmail.com',
+    },
+    'LICENSE': {
+        'name': 'MIT License',
+    },
+    'EXTERNAL_DOCS': {
+        'description': 'Repositório GitHub',
+        'url': 'https://github.com/MarcioGil/Sistema_Integrador_Empresarial',
+    },
+    'TAGS': [
+        {'name': 'Auth', 'description': 'Autenticação JWT'},
+        {'name': 'Clientes', 'description': 'Gestão de clientes PF/PJ'},
+        {'name': 'Produtos', 'description': 'Catálogo de produtos e categorias'},
+        {'name': 'Estoque', 'description': 'Controle de estoque e movimentações'},
+        {'name': 'Vendas', 'description': 'Pedidos de venda'},
+        {'name': 'Financeiro', 'description': 'Contas a pagar/receber e faturas'},
+        {'name': 'Fornecedores', 'description': 'Gestão de fornecedores'},
+        {'name': 'Usuários', 'description': 'Usuários e departamentos'},
+        {'name': 'Auditoria', 'description': 'Logs de auditoria do sistema'},
+    ],
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': r'/api/',
+}
+
+# =============================================================================
 # LOGGING SETTINGS
 # =============================================================================
 
@@ -275,5 +313,36 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+# =============================================================================
+# DRF SPECTACULAR (OpenAPI/Swagger) SETTINGS
+# =============================================================================
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Sistema Integrador Empresarial API',
+    'DESCRIPTION': 'API REST completa para gestão empresarial - ERP com módulos de Clientes, Produtos, Estoque, Vendas, Financeiro, Fornecedores, Usuários e Auditoria',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'CONTACT': {
+        'name': 'Suporte Técnico',
+        'email': 'suporte@sistemaintegrador.com',
+    },
+    'LICENSE': {
+        'name': 'MIT License',
+    },
+    'TAGS': [
+        {'name': 'Autenticação', 'description': 'Endpoints de autenticação JWT'},
+        {'name': 'Clientes', 'description': 'Gerenciamento de clientes (PF e PJ)'},
+        {'name': 'Produtos', 'description': 'Catálogo de produtos e categorias'},
+        {'name': 'Estoque', 'description': 'Controle de estoque e movimentações'},
+        {'name': 'Vendas', 'description': 'Pedidos de venda e itens'},
+        {'name': 'Financeiro', 'description': 'Faturas, contas a receber e a pagar'},
+        {'name': 'Fornecedores', 'description': 'Cadastro de fornecedores'},
+        {'name': 'Usuários', 'description': 'Gerenciamento de usuários e departamentos'},
+        {'name': 'Auditoria', 'description': 'Logs de auditoria do sistema'},
+    ],
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': r'/api/',
 }
 

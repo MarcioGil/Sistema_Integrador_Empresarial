@@ -1,0 +1,426 @@
+# API REST - Sistema Integrador Empresarial
+# Exemplos de requisições para testar todos os endpoints
+
+### ========================
+### AUTENTICAÇÃO JWT
+### ========================
+
+### 1. Obter Token JWT (Login)
+POST http://127.0.0.1:8000/api/token/
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2. Refresh Token
+POST http://127.0.0.1:8000/api/token/refresh/
+Content-Type: application/json
+
+{
+  "refresh": "SEU_REFRESH_TOKEN_AQUI"
+}
+
+### 3. Verificar Token
+POST http://127.0.0.1:8000/api/token/verify/
+Content-Type: application/json
+
+{
+  "token": "SEU_ACCESS_TOKEN_AQUI"
+}
+
+
+### ========================
+### CLIENTES
+### ========================
+
+@token = SEU_ACCESS_TOKEN_AQUI
+
+### 4. Listar Clientes
+GET http://127.0.0.1:8000/api/clientes/
+Authorization: Bearer {{token}}
+
+### 5. Criar Cliente (Pessoa Física)
+POST http://127.0.0.1:8000/api/clientes/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo": "PF",
+  "nome_completo": "João Silva",
+  "cpf": "12345678901",
+  "email": "joao@email.com",
+  "telefone": "(11) 98765-4321",
+  "endereco": "Rua A, 123",
+  "bairro": "Centro",
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "cep": "01000-000",
+  "ativo": true
+}
+
+### 6. Criar Cliente (Pessoa Jurídica)
+POST http://127.0.0.1:8000/api/clientes/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo": "PJ",
+  "razao_social": "Tech Solutions LTDA",
+  "cnpj": "12345678000190",
+  "email": "contato@techsolutions.com",
+  "telefone": "(11) 3333-4444",
+  "endereco": "Av. Paulista, 1000",
+  "bairro": "Bela Vista",
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "cep": "01310-100",
+  "ativo": true
+}
+
+### 7. Buscar Cliente por ID
+GET http://127.0.0.1:8000/api/clientes/1/
+Authorization: Bearer {{token}}
+
+### 8. Atualizar Cliente
+PUT http://127.0.0.1:8000/api/clientes/1/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo": "PF",
+  "nome_completo": "João Silva Santos",
+  "cpf": "12345678901",
+  "email": "joao.santos@email.com",
+  "telefone": "(11) 98765-4321",
+  "ativo": true
+}
+
+### 9. Deletar Cliente
+DELETE http://127.0.0.1:8000/api/clientes/1/
+Authorization: Bearer {{token}}
+
+
+### ========================
+### PRODUTOS
+### ========================
+
+### 10. Listar Categorias
+GET http://127.0.0.1:8000/api/categorias/
+Authorization: Bearer {{token}}
+
+### 11. Criar Categoria
+POST http://127.0.0.1:8000/api/categorias/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Eletrônicos",
+  "descricao": "Produtos eletrônicos em geral",
+  "ativa": true
+}
+
+### 12. Listar Produtos
+GET http://127.0.0.1:8000/api/produtos/
+Authorization: Bearer {{token}}
+
+### 13. Criar Produto
+POST http://127.0.0.1:8000/api/produtos/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "categoria": 1,
+  "nome": "Notebook Dell Inspiron",
+  "descricao": "Notebook Dell, 8GB RAM, 256GB SSD",
+  "codigo_barras": "7891234567890",
+  "preco_custo": 2500.00,
+  "preco_venda": 3500.00,
+  "unidade_medida": "UN",
+  "ativo": true
+}
+
+### 14. Buscar Produto
+GET http://127.0.0.1:8000/api/produtos/1/
+Authorization: Bearer {{token}}
+
+
+### ========================
+### ESTOQUE
+### ========================
+
+### 15. Listar Estoque
+GET http://127.0.0.1:8000/api/estoques/
+Authorization: Bearer {{token}}
+
+### 16. Criar Estoque para Produto
+POST http://127.0.0.1:8000/api/estoques/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "produto": 1,
+  "quantidade_minima": 10,
+  "quantidade_maxima": 100,
+  "localizacao": "Prateleira A-01"
+}
+
+### 17. Produtos que Precisam Reposição
+GET http://127.0.0.1:8000/api/estoques/necessita_reposicao/
+Authorization: Bearer {{token}}
+
+### 18. Criar Movimentação de Entrada
+POST http://127.0.0.1:8000/api/movimentacoes/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "produto": 1,
+  "tipo_movimentacao": "entrada",
+  "quantidade": 50,
+  "observacao": "Compra fornecedor ABC"
+}
+
+### 19. Criar Movimentação de Saída
+POST http://127.0.0.1:8000/api/movimentacoes/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "produto": 1,
+  "tipo_movimentacao": "saida",
+  "quantidade": 5,
+  "observacao": "Venda pedido #1234"
+}
+
+
+### ========================
+### FORNECEDORES
+### ========================
+
+### 20. Listar Fornecedores
+GET http://127.0.0.1:8000/api/fornecedores/
+Authorization: Bearer {{token}}
+
+### 21. Criar Fornecedor
+POST http://127.0.0.1:8000/api/fornecedores/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "TechParts Distribuidora",
+  "razao_social": "TechParts Comércio LTDA",
+  "cnpj": "98765432000100",
+  "email": "vendas@techparts.com",
+  "telefone": "(11) 4444-5555",
+  "endereco": "Rua das Indústrias, 500",
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "cep": "02000-000",
+  "categoria": "tecnologia",
+  "avaliacao": 5,
+  "ativo": true
+}
+
+
+### ========================
+### VENDAS
+### ========================
+
+### 22. Listar Pedidos
+GET http://127.0.0.1:8000/api/pedidos/
+Authorization: Bearer {{token}}
+
+### 23. Criar Pedido com Itens
+POST http://127.0.0.1:8000/api/pedidos/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cliente": 1,
+  "forma_pagamento": "cartao_credito",
+  "observacoes": "Entregar no período da manhã",
+  "itens": [
+    {
+      "produto": 1,
+      "quantidade": 2,
+      "preco_unitario": 3500.00
+    }
+  ]
+}
+
+### 24. Buscar Pedido
+GET http://127.0.0.1:8000/api/pedidos/1/
+Authorization: Bearer {{token}}
+
+### 25. Confirmar Pedido
+POST http://127.0.0.1:8000/api/pedidos/1/confirmar/
+Authorization: Bearer {{token}}
+
+### 26. Cancelar Pedido
+POST http://127.0.0.1:8000/api/pedidos/1/cancelar/
+Authorization: Bearer {{token}}
+
+
+### ========================
+### FINANCEIRO
+### ========================
+
+### 27. Listar Faturas
+GET http://127.0.0.1:8000/api/faturas/
+Authorization: Bearer {{token}}
+
+### 28. Faturas Atrasadas
+GET http://127.0.0.1:8000/api/faturas/atrasadas/
+Authorization: Bearer {{token}}
+
+### 29. Listar Contas a Receber
+GET http://127.0.0.1:8000/api/contas-receber/
+Authorization: Bearer {{token}}
+
+### 30. Criar Conta a Receber
+POST http://127.0.0.1:8000/api/contas-receber/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "descricao": "Venda à vista",
+  "cliente": 1,
+  "valor": 3500.00,
+  "data_vencimento": "2025-11-30",
+  "forma_pagamento": "dinheiro",
+  "status": "pendente"
+}
+
+### 31. Marcar Conta como Recebida
+POST http://127.0.0.1:8000/api/contas-receber/1/receber/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "valor_recebido": 3500.00
+}
+
+### 32. Listar Contas a Pagar
+GET http://127.0.0.1:8000/api/contas-pagar/
+Authorization: Bearer {{token}}
+
+### 33. Criar Conta a Pagar
+POST http://127.0.0.1:8000/api/contas-pagar/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "descricao": "Fornecedor TechParts",
+  "fornecedor": 1,
+  "valor": 5000.00,
+  "data_vencimento": "2025-11-15",
+  "categoria": "compras",
+  "forma_pagamento": "transferencia",
+  "status": "pendente"
+}
+
+### 34. Marcar Conta como Paga
+POST http://127.0.0.1:8000/api/contas-pagar/1/pagar/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "valor_pago": 5000.00
+}
+
+
+### ========================
+### USUÁRIOS
+### ========================
+
+### 35. Listar Usuários
+GET http://127.0.0.1:8000/api/usuarios/
+Authorization: Bearer {{token}}
+
+### 36. Meus Dados (Usuário Logado)
+GET http://127.0.0.1:8000/api/usuarios/me/
+Authorization: Bearer {{token}}
+
+### 37. Criar Usuário
+POST http://127.0.0.1:8000/api/usuarios/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "vendedor1",
+  "email": "vendedor1@empresa.com",
+  "password": "senha123",
+  "password_confirm": "senha123",
+  "first_name": "Carlos",
+  "last_name": "Vendas",
+  "cpf": "11122233344",
+  "tipo": "vendedor"
+}
+
+### 38. Alterar Senha
+POST http://127.0.0.1:8000/api/usuarios/2/alterar_senha/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "senha_nova": "novaSenha123"
+}
+
+### 39. Listar Departamentos
+GET http://127.0.0.1:8000/api/departamentos/
+Authorization: Bearer {{token}}
+
+### 40. Criar Departamento
+POST http://127.0.0.1:8000/api/departamentos/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Vendas",
+  "sigla": "VND",
+  "descricao": "Departamento de Vendas",
+  "responsavel": "João Silva",
+  "email": "vendas@empresa.com",
+  "ramal": "2001",
+  "ativo": true
+}
+
+
+### ========================
+### AUDITORIA (Admin Only)
+### ========================
+
+### 41. Listar Logs de Auditoria
+GET http://127.0.0.1:8000/api/logs/
+Authorization: Bearer {{token}}
+
+### 42. Buscar Log Específico
+GET http://127.0.0.1:8000/api/logs/1/
+Authorization: Bearer {{token}}
+
+
+### ========================
+### FILTROS E BUSCAS
+### ========================
+
+### 43. Buscar Clientes por Nome
+GET http://127.0.0.1:8000/api/clientes/?search=João
+Authorization: Bearer {{token}}
+
+### 44. Filtrar Produtos por Categoria
+GET http://127.0.0.1:8000/api/produtos/?categoria=1
+Authorization: Bearer {{token}}
+
+### 45. Filtrar Pedidos por Status
+GET http://127.0.0.1:8000/api/pedidos/?status=pendente
+Authorization: Bearer {{token}}
+
+### 46. Ordenar Produtos por Preço
+GET http://127.0.0.1:8000/api/produtos/?ordering=-preco_venda
+Authorization: Bearer {{token}}
+
+### 47. Paginação
+GET http://127.0.0.1:8000/api/clientes/?page=1&page_size=10
+Authorization: Bearer {{token}}
