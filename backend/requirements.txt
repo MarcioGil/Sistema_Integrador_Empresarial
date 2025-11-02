@@ -32,6 +32,7 @@ django-debug-toolbar==4.3.0
 
 # Production Server
 gunicorn==22.0.0
+whitenoise==6.7.0  # Static files serving
 
 # Timezone
 pytz==2024.1
