@@ -146,6 +146,70 @@ O projeto segue uma arquitetura moderna baseada em:
 
 ---
 
+## 📸 Screenshots
+
+<div align="center">
+
+### 🔐 Tela de Login
+*Interface moderna com validação em tempo real*
+
+![Login](docs/screenshots/login.png)
+
+---
+
+### 📊 Dashboard Analítico
+*Visão geral com métricas, gráficos e estatísticas em tempo real*
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+---
+
+### 👥 Gestão de Clientes
+*CRUD completo com busca, filtros e validação de CPF/CNPJ*
+
+![Clientes](docs/screenshots/clientes.png)
+
+---
+
+### 📦 Controle de Produtos
+*Gestão de produtos com categorias, preços e imagens*
+
+![Produtos](docs/screenshots/produtos.png)
+
+---
+
+### 📊 Controle de Estoque
+*Movimentações, alertas de estoque mínimo e histórico completo*
+
+![Estoque](docs/screenshots/estoque.png)
+
+---
+
+### 🛒 Sistema de Vendas
+*Carrinho interativo com cálculo automático de totais*
+
+![Vendas](docs/screenshots/vendas.png)
+
+---
+
+### 💰 Gestão Financeira
+*Contas a pagar/receber com controle de vencimentos e status*
+
+![Financeiro](docs/screenshots/financeiro.png)
+
+---
+
+### 📚 API Documentation (Swagger)
+*Documentação interativa automática com drf-spectacular*
+
+![API Docs](docs/screenshots/api-swagger.png)
+
+</div>
+
+> **📝 Nota:** Para visualizar o sistema em ação localmente, siga as instruções de [Instalação](#-instalação) ou acesse a [demo online](#-demo-online) (em breve).
+
+---
+
 ## ✨ Funcionalidades
 
 ### 📦 Módulos Implementados
