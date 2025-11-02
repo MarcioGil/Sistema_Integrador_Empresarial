@@ -1,375 +1,472 @@
 """
-Script para popular o banco de dados com dados de exemplo.
-Execute: python manage.py shell < populate_db.py
-Ou: python manage.py shell -c "exec(open('populate_db.py').read())"
+Script para popular o banco de dados com dados realistas para demonstrações.
+
+Uso:
+    python populate_db.py
+
+Gera aproximadamente 100+ registros para demonstração.
+
+Desenvolvido por: Márcio Gil - DIO Campus Expert Turma 14
 """
 
 import os
 import sys
 import django
-from datetime import datetime, timedelta, date
 from decimal import Decimal
-from django.utils import timezone
+from datetime import timedelta
+import random
 
 # Setup Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from clientes.models import Cliente
+from fornecedores.models import Fornecedor
 from produtos.models import Categoria, Produto
 from estoque.models import Estoque, MovimentacaoEstoque
-from fornecedores.models import Fornecedor
 from vendas.models import Pedido, ItemPedido
-from financeiro.models import Fatura, ContaReceber, ContaPagar
-from usuarios.models import Departamento
+from financeiro.models import ContaReceber, ContaPagar
 
 Usuario = get_user_model()
 
-print("=" * 80)
-print("POPULANDO BANCO DE DADOS COM DADOS DE EXEMPLO")
-print("=" * 80)
-
-# =============================================================================
-# 1. DEPARTAMENTOS
-# =============================================================================
-print("\n[1/10] Criando Departamentos...")
-
-departamentos_data = [
-    {'nome': 'Vendas', 'sigla': 'VND', 'responsavel': 'Carlos Mendes', 'email': 'vendas@empresa.com', 'ramal': '2001'},
-    {'nome': 'Compras', 'sigla': 'CMP', 'responsavel': 'Ana Paula', 'email': 'compras@empresa.com', 'ramal': '2002'},
-    {'nome': 'Financeiro', 'sigla': 'FIN', 'responsavel': 'Roberto Silva', 'email': 'financeiro@empresa.com', 'ramal': '2003'},
-    {'nome': 'Estoque', 'sigla': 'EST', 'responsavel': 'Mariana Costa', 'email': 'estoque@empresa.com', 'ramal': '2004'},
-    {'nome': 'TI', 'sigla': 'TI', 'responsavel': 'João Santos', 'email': 'ti@empresa.com', 'ramal': '2005'},
+# Dados de exemplo
+NOMES_PF = [
+    "João Silva", "Maria Santos", "Pedro Oliveira", "Ana Costa", "Carlos Souza",
+    "Juliana Ferreira", "Roberto Lima", "Fernanda Alves", "Ricardo Pereira", "Camila Rocha",
+    "Lucas Martins", "Patricia Ribeiro", "André Carvalho", "Mariana Dias", "Felipe Gomes",
+    "Beatriz Mendes", "Gustavo Barbosa", "Larissa Cardoso", "Bruno Nascimento", "Gabriela Monteiro"
 ]
 
-departamentos = {}
-for dep_data in departamentos_data:
-    dep, created = Departamento.objects.get_or_create(
-        sigla=dep_data['sigla'],
-        defaults=dep_data
-    )
-    departamentos[dep_data['sigla']] = dep
-    if created:
-        print(f"  ✓ Criado: {dep.nome}")
-
-# =============================================================================
-# 2. USUÁRIOS
-# =============================================================================
-print("\n[2/10] Criando Usuários...")
-
-# Admin já existe, vamos criar outros
-usuarios_data = [
-    {'username': 'vendedor1', 'email': 'vendedor1@empresa.com', 'first_name': 'Carlos', 'last_name': 'Mendes', 
-     'tipo': 'vendedor', 'departamento': departamentos['VND'], 'cargo': 'Vendedor Sênior'},
-    {'username': 'vendedor2', 'email': 'vendedor2@empresa.com', 'first_name': 'Juliana', 'last_name': 'Oliveira', 
-     'tipo': 'vendedor', 'departamento': departamentos['VND'], 'cargo': 'Vendedora'},
-    {'username': 'comprador', 'email': 'comprador@empresa.com', 'first_name': 'Ana', 'last_name': 'Paula', 
-     'tipo': 'gerente', 'departamento': departamentos['CMP'], 'cargo': 'Gerente de Compras'},
-    {'username': 'financeiro', 'email': 'financeiro@empresa.com', 'first_name': 'Roberto', 'last_name': 'Silva', 
-     'tipo': 'gerente', 'departamento': departamentos['FIN'], 'cargo': 'Gerente Financeiro'},
-    {'username': 'estoquista', 'email': 'estoquista@empresa.com', 'first_name': 'Mariana', 'last_name': 'Costa', 
-     'tipo': 'funcionario', 'departamento': departamentos['EST'], 'cargo': 'Estoquista'},
+EMPRESAS_PJ = [
+    "Tech Solutions Ltda", "Comércio Global EIRELI", "Indústria Brasil SA",
+    "Serviços Premium ME", "Distribuidora Nacional", "Construtora Moderna",
+    "Alimentos Qualidade", "Transportadora Rápida", "Consultoria Expert",
+    "Informática & Cia"
 ]
 
-usuarios = {}
-for user_data in usuarios_data:
-    user, created = Usuario.objects.get_or_create(
-        username=user_data['username'],
-        defaults={**user_data, 'password': 'senha123'}
-    )
-    if created:
-        user.set_password('senha123')
-        user.save()
-        print(f"  ✓ Criado: {user.get_full_name()} ({user.username})")
-    usuarios[user_data['username']] = user
-
-# Pegar o admin
-admin = Usuario.objects.get(username='admin')
-
-# =============================================================================
-# 3. CLIENTES
-# =============================================================================
-print("\n[3/10] Criando Clientes...")
-
-clientes_data = [
-    {'tipo': 'PF', 'nome_completo': 'João Silva Santos', 'cpf': '12345678901', 'email': 'joao@email.com', 
-     'telefone': '(11) 98765-4321', 'cidade': 'São Paulo', 'estado': 'SP'},
-    {'tipo': 'PF', 'nome_completo': 'Maria Oliveira Costa', 'cpf': '98765432109', 'email': 'maria@email.com', 
-     'telefone': '(11) 97654-3210', 'cidade': 'São Paulo', 'estado': 'SP'},
-    {'tipo': 'PJ', 'razao_social': 'Tech Solutions LTDA', 'cnpj': '12345678000190', 'email': 'contato@techsolutions.com', 
-     'telefone': '(11) 3333-4444', 'cidade': 'São Paulo', 'estado': 'SP'},
-    {'tipo': 'PJ', 'razao_social': 'Comercial ABC Ltda', 'cnpj': '98765432000100', 'email': 'contato@comercialabc.com', 
-     'telefone': '(11) 4444-5555', 'cidade': 'Campinas', 'estado': 'SP'},
-    {'tipo': 'PF', 'nome_completo': 'Pedro Almeida', 'cpf': '11122233344', 'email': 'pedro@email.com', 
-     'telefone': '(21) 98888-7777', 'cidade': 'Rio de Janeiro', 'estado': 'RJ'},
+FORNECEDORES = [
+    "Fornecedor ABC Ltda", "Distribuidora XYZ", "Importadora Global",
+    "Atacado Nacional", "Indústria Componentes", "Suprimentos Tech",
+    "Matéria Prima Brasil", "Distribuição Express", "Atacadão Premium",
+    "Fornecedor Master"
 ]
 
-clientes = []
-for cli_data in clientes_data:
-    identificador = cli_data.get('cpf') or cli_data.get('cnpj')
-    filters = {'cpf': identificador} if cli_data['tipo'] == 'PF' else {'cnpj': identificador}
+CATEGORIAS = [
+    ("Eletrônicos", "Produtos eletrônicos e acessórios"),
+    ("Informática", "Hardware, software e periféricos"),
+    ("Escritório", "Material de escritório e papelaria"),
+    ("Móveis", "Móveis corporativos e residenciais"),
+    ("Ferramentas", "Ferramentas manuais e elétricas"),
+    ("Alimentos", "Produtos alimentícios diversos"),
+    ("Limpeza", "Produtos de limpeza e higiene"),
+    ("Vestuário", "Roupas e acessórios"),
+]
+
+PRODUTOS_EXEMPLOS = {
+    "Eletrônicos": [
+        ("Notebook Dell Inspiron 15", "Intel i5, 8GB RAM, 256GB SSD", 2800, 3500),
+        ("Mouse Logitech MX Master", "Mouse wireless ergonômico", 250, 380),
+        ("Teclado Mecânico Redragon", "RGB, Switch Blue", 180, 280),
+        ("Monitor LG 24\" Full HD", "IPS, 75Hz", 650, 890),
+        ("Webcam Logitech C920", "Full HD 1080p", 320, 480),
+    ],
+    "Informática": [
+        ("SSD Kingston 480GB", "Leitura 500MB/s", 220, 340),
+        ("Memória RAM 8GB DDR4", "2666MHz", 140, 210),
+        ("HD Externo 1TB", "USB 3.0", 280, 390),
+        ("Cabo HDMI 2.0 Premium", "2 metros, 4K", 25, 45),
+        ("Hub USB 3.0 4 Portas", "Com alimentação", 45, 75),
+    ],
+    "Escritório": [
+        ("Resma Papel A4", "500 folhas, 75g", 18, 28),
+        ("Caneta Esferográfica Caixa", "50 unidades, azul", 35, 55),
+        ("Grampeador Profissional", "Capacidade 50 folhas", 28, 48),
+        ("Agenda 2025", "Capa dura, 365 dias", 32, 52),
+        ("Organizador de Mesa", "6 compartimentos", 42, 68),
+    ],
+    "Móveis": [
+        ("Cadeira Office Ergonômica", "Ajuste de altura e lombar", 580, 890),
+        ("Mesa Escritório 120x60cm", "MDF, cor preta", 420, 650),
+        ("Estante Organizadora", "5 prateleiras, branca", 280, 450),
+        ("Armário 2 Portas", "1,80m altura", 520, 780),
+    ],
+    "Ferramentas": [
+        ("Furadeira Elétrica Black&Decker", "500W, 10mm", 180, 280),
+        ("Jogo de Chaves Philips", "6 peças", 38, 62),
+        ("Trena 5 metros", "Trava automática", 22, 38),
+        ("Martelo Profissional", "Cabo de fibra", 28, 48),
+    ],
+    "Alimentos": [
+        ("Café Torrado e Moído 500g", "Torrado médio", 18, 28),
+        ("Açúcar Refinado 1kg", "Embalagem lacrada", 3.5, 5.8),
+        ("Biscoito Cream Cracker", "400g", 4.2, 7.5),
+    ],
+    "Limpeza": [
+        ("Detergente Neutro", "500ml", 2.8, 4.5),
+        ("Desinfetante Lavanda", "2 litros", 8.5, 13.9),
+        ("Papel Toalha Folha Dupla", "2 rolos", 6.8, 11.2),
+    ],
+    "Vestuário": [
+        ("Camiseta Básica Algodão", "100% algodão, diversas cores", 25, 45),
+        ("Calça Jeans Masculina", "Azul escuro", 68, 110),
+    ],
+}
+
+def gerar_cpf():
+    """Gera CPF válido aleatório"""
+    def calcula_digito(digs):
+        s = 0
+        peso = len(digs) + 1
+        for i in range(len(digs)):
+            s += int(digs[i]) * peso
+            peso -= 1
+        r = 11 - (s % 11)
+        return '0' if r > 9 else str(r)
     
-    cli, created = Cliente.objects.get_or_create(
-        **filters,
-        defaults=cli_data
-    )
-    clientes.append(cli)
-    if created:
-        nome = cli_data.get('nome_completo') or cli_data.get('razao_social')
-        print(f"  ✓ Criado: {nome}")
+    cpf = [random.randint(0, 9) for _ in range(9)]
+    cpf.append(int(calcula_digito(cpf)))
+    cpf.append(int(calcula_digito(cpf)))
+    return ''.join(map(str, cpf))
 
-# =============================================================================
-# 4. CATEGORIAS DE PRODUTOS
-# =============================================================================
-print("\n[4/10] Criando Categorias...")
+def gerar_cnpj():
+    """Gera CNPJ válido aleatório"""
+    def calcula_digito(digs, pesos):
+        s = sum(int(d) * p for d, p in zip(digs, pesos))
+        r = s % 11
+        return '0' if r < 2 else str(11 - r)
+    
+    cnpj = [random.randint(0, 9) for _ in range(8)] + [0, 0, 0, 1]
+    pesos1 = [5,4,3,2,9,8,7,6,5,4,3,2]
+    cnpj.append(int(calcula_digito(cnpj, pesos1)))
+    pesos2 = [6,5,4,3,2,9,8,7,6,5,4,3,2]
+    cnpj.append(int(calcula_digito(cnpj, pesos2)))
+    return ''.join(map(str, cnpj))
 
-categorias_data = [
-    {'nome': 'Eletrônicos', 'descricao': 'Produtos eletrônicos em geral'},
-    {'nome': 'Informática', 'descricao': 'Computadores, notebooks e periféricos'},
-    {'nome': 'Smartphones', 'descricao': 'Celulares e tablets'},
-    {'nome': 'Acessórios', 'descricao': 'Acessórios diversos'},
-    {'nome': 'Escritório', 'descricao': 'Material de escritório'},
-]
+def criar_usuario_admin():
+    """Cria usuário admin se não existir"""
+    print("📌 Criando/Verificando usuário admin...")
+    
+    if not Usuario.objects.filter(username='admin').exists():
+        admin = Usuario.objects.create_superuser(
+            username='admin',
+            email='admin@sistema.com',
+            password='admin123',
+            nome_completo='Administrador do Sistema'
+        )
+        print(f"✅ Usuário admin criado: {admin.username}")
+    else:
+        admin = Usuario.objects.get(username='admin')
+        print(f"✅ Usuário admin já existe: {admin.username}")
+    
+    return admin
 
-categorias = []
-for cat_data in categorias_data:
-    cat, created = Categoria.objects.get_or_create(
-        nome=cat_data['nome'],
-        defaults=cat_data
-    )
-    categorias.append(cat)
-    if created:
-        print(f"  ✓ Criada: {cat.nome}")
+def criar_clientes():
+    """Cria clientes PF e PJ"""
+    print("\n📋 Criando clientes...")
+    clientes = []
+    
+    # Clientes Pessoa Física
+    for nome in NOMES_PF:
+        cliente = Cliente.objects.create(
+            nome=nome,
+            tipo='PF',
+            cpf_cnpj=gerar_cpf(),
+            email=f"{nome.lower().replace(' ', '.')}@email.com",
+            telefone=f"(11) 9{random.randint(1000, 9999)}-{random.randint(1000, 9999)}",
+            endereco=f"Rua {random.choice(['das Flores', 'da Paz', 'Principal', 'do Comércio'])} {random.randint(10, 999)}",
+            cidade="São Paulo",
+            estado="SP",
+            cep=f"{random.randint(10000, 99999)}-{random.randint(100, 999)}",
+            ativo=True
+        )
+        clientes.append(cliente)
+    
+    # Clientes Pessoa Jurídica
+    for empresa in EMPRESAS_PJ:
+        cliente = Cliente.objects.create(
+            nome=empresa,
+            tipo='PJ',
+            cpf_cnpj=gerar_cnpj(),
+            email=f"contato@{empresa.lower().replace(' ', '').replace('&', '')[:15]}.com",
+            telefone=f"(11) {random.randint(3000, 3999)}-{random.randint(1000, 9999)}",
+            endereco=f"Av. {random.choice(['Paulista', 'Faria Lima', 'Berrini', 'Industrial'])} {random.randint(100, 9999)}",
+            cidade=random.choice(["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba"]),
+            estado=random.choice(["SP", "RJ", "MG", "PR"]),
+            cep=f"{random.randint(10000, 99999)}-{random.randint(100, 999)}",
+            ativo=True
+        )
+        clientes.append(cliente)
+    
+    print(f"✅ {len(clientes)} clientes criados ({len(NOMES_PF)} PF, {len(EMPRESAS_PJ)} PJ)")
+    return clientes
 
-# =============================================================================
-# 5. PRODUTOS
-# =============================================================================
-print("\n[5/10] Criando Produtos...")
+def criar_fornecedores():
+    """Cria fornecedores"""
+    print("\n🏭 Criando fornecedores...")
+    fornecedores = []
+    
+    for empresa in FORNECEDORES:
+        fornecedor = Fornecedor.objects.create(
+            nome=empresa,
+            cnpj=gerar_cnpj(),
+            email=f"vendas@{empresa.lower().replace(' ', '')[:15]}.com",
+            telefone=f"(11) {random.randint(2000, 2999)}-{random.randint(1000, 9999)}",
+            endereco=f"Rua Industrial {random.randint(100, 999)}",
+            cidade=random.choice(["São Paulo", "Guarulhos", "Santo André"]),
+            estado="SP",
+            cep=f"{random.randint(10000, 99999)}-{random.randint(100, 999)}",
+            ativo=True
+        )
+        fornecedores.append(fornecedor)
+    
+    print(f"✅ {len(fornecedores)} fornecedores criados")
+    return fornecedores
 
-produtos_data = [
-    {'categoria': categorias[1], 'nome': 'Notebook Dell Inspiron 15', 'codigo_barras': '7891234567890',
-     'preco_custo': Decimal('2500.00'), 'preco_venda': Decimal('3500.00'), 'unidade_medida': 'UN'},
-    {'categoria': categorias[1], 'nome': 'Mouse Logitech MX Master', 'codigo_barras': '7891234567891',
-     'preco_custo': Decimal('150.00'), 'preco_venda': Decimal('250.00'), 'unidade_medida': 'UN'},
-    {'categoria': categorias[1], 'nome': 'Teclado Mecânico Keychron K2', 'codigo_barras': '7891234567892',
-     'preco_custo': Decimal('300.00'), 'preco_venda': Decimal('450.00'), 'unidade_medida': 'UN'},
-    {'categoria': categorias[2], 'nome': 'iPhone 15 Pro 256GB', 'codigo_barras': '7891234567893',
-     'preco_custo': Decimal('5000.00'), 'preco_venda': Decimal('7000.00'), 'unidade_medida': 'UN'},
-    {'categoria': categorias[2], 'nome': 'Samsung Galaxy S24', 'codigo_barras': '7891234567894',
-     'preco_custo': Decimal('3500.00'), 'preco_venda': Decimal('5000.00'), 'unidade_medida': 'UN'},
-    {'categoria': categorias[3], 'nome': 'Fone de Ouvido Sony WH-1000XM5', 'codigo_barras': '7891234567895',
-     'preco_custo': Decimal('800.00'), 'preco_venda': Decimal('1200.00'), 'unidade_medida': 'UN'},
-    {'categoria': categorias[3], 'nome': 'Carregador Portátil Anker 20000mAh', 'codigo_barras': '7891234567896',
-     'preco_custo': Decimal('120.00'), 'preco_venda': Decimal('200.00'), 'unidade_medida': 'UN'},
-    {'categoria': categorias[4], 'nome': 'Caderno Executivo 200 Folhas', 'codigo_barras': '7891234567897',
-     'preco_custo': Decimal('15.00'), 'preco_venda': Decimal('25.00'), 'unidade_medida': 'UN'},
-]
+def criar_categorias_e_produtos():
+    """Cria categorias e produtos"""
+    print("\n📦 Criando categorias e produtos...")
+    
+    categorias = []
+    for nome, desc in CATEGORIAS:
+        cat, created = Categoria.objects.get_or_create(
+            nome=nome,
+            defaults={'descricao': desc}
+        )
+        categorias.append(cat)
+    
+    print(f"✅ {len(categorias)} categorias criadas")
+    
+    produtos = []
+    contador = 1
+    
+    for categoria in categorias:
+        if categoria.nome in PRODUTOS_EXEMPLOS:
+            for nome, desc, custo, venda in PRODUTOS_EXEMPLOS[categoria.nome]:
+                produto = Produto.objects.create(
+                    codigo=f"PROD{contador:04d}",
+                    nome=nome,
+                    descricao=desc,
+                    categoria=categoria,
+                    preco_custo=Decimal(str(custo)),
+                    preco_venda=Decimal(str(venda)),
+                    estoque_minimo=random.randint(5, 20),
+                    unidade_medida=random.choice(['UN', 'CX', 'KG']),
+                    ativo=True
+                )
+                produtos.append(produto)
+                contador += 1
+    
+    print(f"✅ {len(produtos)} produtos criados")
+    return produtos
 
-produtos = []
-for prod_data in produtos_data:
-    prod, created = Produto.objects.get_or_create(
-        codigo_barras=prod_data['codigo_barras'],
-        defaults=prod_data
-    )
-    produtos.append(prod)
-    if created:
-        print(f"  ✓ Criado: {prod.nome}")
+def criar_estoques_e_movimentacoes(produtos, usuario):
+    """Cria registros de estoque e movimentações"""
+    print("\n📊 Criando estoques e movimentações...")
+    
+    for produto in produtos:
+        # Criar registro de estoque
+        quantidade_inicial = random.randint(50, 200)
+        estoque = Estoque.objects.create(
+            produto=produto,
+            quantidade_atual=quantidade_inicial
+        )
+        
+        # Criar movimentação de entrada inicial
+        MovimentacaoEstoque.objects.create(
+            estoque=estoque,
+            tipo_movimentacao='entrada',
+            quantidade=quantidade_inicial,
+            motivo="Estoque inicial - população do sistema",
+            usuario=usuario
+        )
+        
+        # Criar algumas movimentações aleatórias
+        num_movimentacoes = random.randint(2, 5)
+        for _ in range(num_movimentacoes):
+            tipo = random.choice(['entrada', 'saida'])
+            qtd = random.randint(5, 30)
+            
+            if tipo == 'saida' and estoque.quantidade_atual < qtd:
+                qtd = estoque.quantidade_atual
+            
+            if qtd > 0:
+                MovimentacaoEstoque.objects.create(
+                    estoque=estoque,
+                    tipo_movimentacao=tipo,
+                    quantidade=qtd,
+                    motivo=random.choice([
+                        "Venda", "Compra", "Ajuste de inventário",
+                        "Devolução", "Transferência", "Correção"
+                    ]),
+                    usuario=usuario,
+                    data_movimentacao=timezone.now() - timedelta(days=random.randint(1, 60))
+                )
+                
+                if tipo == 'entrada':
+                    estoque.quantidade_atual += qtd
+                else:
+                    estoque.quantidade_atual -= qtd
+                estoque.save()
+    
+    print(f"✅ Estoques e movimentações criados para {len(produtos)} produtos")
 
-# =============================================================================
-# 6. FORNECEDORES
-# =============================================================================
-print("\n[6/10] Criando Fornecedores...")
+def criar_pedidos(clientes, produtos, usuario):
+    """Cria pedidos com itens"""
+    print("\n🛒 Criando pedidos...")
+    
+    pedidos = []
+    for i in range(25):
+        cliente = random.choice(clientes)
+        status = random.choice(['pendente', 'processando', 'finalizado', 'cancelado'])
+        
+        pedido = Pedido.objects.create(
+            cliente=cliente,
+            status=status,
+            data_pedido=timezone.now() - timedelta(days=random.randint(0, 90))
+        )
+        
+        # Adicionar itens ao pedido
+        num_itens = random.randint(1, 5)
+        produtos_pedido = random.sample(produtos, min(num_itens, len(produtos)))
+        
+        for produto in produtos_pedido:
+            quantidade = random.randint(1, 10)
+            ItemPedido.objects.create(
+                pedido=pedido,
+                produto=produto,
+                quantidade=quantidade,
+                preco_unitario=produto.preco_venda
+            )
+        
+        pedidos.append(pedido)
+    
+    print(f"✅ {len(pedidos)} pedidos criados")
+    return pedidos
 
-fornecedores_data = [
-    {'nome': 'TechParts Distribuidora', 'razao_social': 'TechParts Comércio LTDA', 'cnpj': '98765432000100',
-     'email': 'vendas@techparts.com', 'telefone': '(11) 4444-5555', 'categoria': 'tecnologia', 'avaliacao': 5},
-    {'nome': 'InfoStore Atacado', 'razao_social': 'InfoStore Distribuição SA', 'cnpj': '11122233000144',
-     'email': 'vendas@infostore.com', 'telefone': '(11) 3333-2222', 'categoria': 'tecnologia', 'avaliacao': 4},
-    {'nome': 'Papelaria Central', 'razao_social': 'Central Papéis LTDA', 'cnpj': '44455566000177',
-     'email': 'vendas@papcentral.com', 'telefone': '(11) 2222-1111', 'categoria': 'escritorio', 'avaliacao': 5},
-]
+def criar_contas_financeiras(clientes, fornecedores):
+    """Cria contas a receber e a pagar"""
+    print("\n💰 Criando contas financeiras...")
+    
+    # Contas a Receber
+    contas_receber = []
+    for i in range(30):
+        cliente = random.choice(clientes)
+        valor = Decimal(random.uniform(100, 5000)).quantize(Decimal('0.01'))
+        dias_venc = random.randint(-30, 60)
+        data_venc = timezone.now().date() + timedelta(days=dias_venc)
+        
+        status = 'pendente'
+        data_pag = None
+        
+        if dias_venc < -5:
+            status = 'pago'
+            data_pag = data_venc + timedelta(days=random.randint(0, 5))
+        
+        conta = ContaReceber.objects.create(
+            cliente=cliente,
+            descricao=f"Venda #{i+1000} - {cliente.nome}",
+            valor=valor,
+            data_vencimento=data_venc,
+            status=status,
+            data_pagamento=data_pag,
+            valor_pago=valor if status == 'pago' else None,
+            forma_pagamento=random.choice(['dinheiro', 'pix', 'cartao_credito']) if status == 'pago' else None
+        )
+        contas_receber.append(conta)
+    
+    # Contas a Pagar
+    contas_pagar = []
+    for i in range(20):
+        fornecedor = random.choice(fornecedores)
+        valor = Decimal(random.uniform(200, 8000)).quantize(Decimal('0.01'))
+        dias_venc = random.randint(-20, 45)
+        data_venc = timezone.now().date() + timedelta(days=dias_venc)
+        
+        status = 'pendente'
+        data_pag = None
+        
+        if dias_venc < -3:
+            status = 'pago'
+            data_pag = data_venc + timedelta(days=random.randint(0, 3))
+        
+        conta = ContaPagar.objects.create(
+            fornecedor=fornecedor,
+            descricao=f"Compra de {fornecedor.nome}",
+            valor=valor,
+            data_vencimento=data_venc,
+            status=status,
+            data_pagamento=data_pag,
+            valor_pago=valor if status == 'pago' else None,
+            forma_pagamento=random.choice(['transferencia', 'boleto', 'pix']) if status == 'pago' else None
+        )
+        contas_pagar.append(conta)
+    
+    print(f"✅ {len(contas_receber)} contas a receber e {len(contas_pagar)} contas a pagar criadas")
 
-fornecedores = []
-for forn_data in fornecedores_data:
-    forn, created = Fornecedor.objects.get_or_create(
-        cnpj=forn_data['cnpj'],
-        defaults=forn_data
-    )
-    fornecedores.append(forn)
-    if created:
-        print(f"  ✓ Criado: {forn.nome}")
+def main():
+    """Função principal"""
+    print("="*70)
+    print("🚀 POPULAÇÃO DO BANCO DE DADOS - SISTEMA INTEGRADOR EMPRESARIAL")
+    print("="*70)
+    print("\n⚠️  ATENÇÃO: Este script irá criar dados de exemplo no banco.")
+    print("Execute apenas em ambiente de desenvolvimento ou demonstração!\n")
+    
+    resposta = input("Deseja continuar? (s/N): ").strip().lower()
+    if resposta != 's':
+        print("❌ Operação cancelada.")
+        return
+    
+    try:
+        # Criar usuário admin
+        usuario = criar_usuario_admin()
+        
+        # Criar clientes
+        clientes = criar_clientes()
+        
+        # Criar fornecedores
+        fornecedores = criar_fornecedores()
+        
+        # Criar categorias e produtos
+        produtos = criar_categorias_e_produtos()
+        
+        # Criar estoques e movimentações
+        criar_estoques_e_movimentacoes(produtos, usuario)
+        
+        # Criar pedidos
+        criar_pedidos(clientes, produtos, usuario)
+        
+        # Criar contas financeiras
+        criar_contas_financeiras(clientes, fornecedores)
+        
+        print("\n" + "="*70)
+        print("✅ POPULAÇÃO CONCLUÍDA COM SUCESSO!")
+        print("="*70)
+        print("\n📊 Resumo:")
+        print(f"   • {Cliente.objects.count()} clientes")
+        print(f"   • {Fornecedor.objects.count()} fornecedores")
+        print(f"   • {Categoria.objects.count()} categorias")
+        print(f"   • {Produto.objects.count()} produtos")
+        print(f"   • {Estoque.objects.count()} registros de estoque")
+        print(f"   • {MovimentacaoEstoque.objects.count()} movimentações")
+        print(f"   • {Pedido.objects.count()} pedidos")
+        print(f"   • {ItemPedido.objects.count()} itens de pedido")
+        print(f"   • {ContaReceber.objects.count()} contas a receber")
+        print(f"   • {ContaPagar.objects.count()} contas a pagar")
+        print("\n🔐 Credenciais de acesso:")
+        print("   Usuário: admin")
+        print("   Senha: admin123")
+        print("\n🌐 Acesse: http://localhost:8000/admin")
+        print("          http://localhost:5173 (Frontend)\n")
+        
+    except Exception as e:
+        print(f"\n❌ Erro durante a população: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+    
+    return 0
 
-# =============================================================================
-# 7. ESTOQUE
-# =============================================================================
-print("\n[7/10] Criando Registros de Estoque...")
-
-for produto in produtos:
-    estoque, created = Estoque.objects.get_or_create(
-        produto=produto,
-        defaults={
-            'quantidade_minima': 5,
-            'quantidade_maxima': 100,
-            'localizacao': f'Prateleira A-{produtos.index(produto) + 1:02d}'
-        }
-    )
-    if created:
-        print(f"  ✓ Estoque criado para: {produto.nome}")
-
-# =============================================================================
-# 8. MOVIMENTAÇÕES DE ESTOQUE (Entradas)
-# =============================================================================
-print("\n[8/10] Criando Movimentações de Estoque...")
-
-# Adicionar estoque inicial
-quantidades = [20, 50, 30, 10, 15, 25, 40, 100]
-for i, produto in enumerate(produtos):
-    mov = MovimentacaoEstoque.objects.create(
-        produto=produto,
-        tipo_movimentacao='entrada',
-        quantidade=quantidades[i],
-        usuario=usuarios['estoquista'],
-        observacao='Estoque inicial'
-    )
-    print(f"  ✓ Entrada: {quantidades[i]} unidades de {produto.nome}")
-
-# =============================================================================
-# 9. PEDIDOS E VENDAS
-# =============================================================================
-print("\n[9/10] Criando Pedidos de Venda...")
-
-# Pedido 1
-pedido1 = Pedido.objects.create(
-    cliente=clientes[0],
-    vendedor=usuarios['vendedor1'],
-    status='confirmado',
-    forma_pagamento='cartao_credito',
-    data_pedido=timezone.now() - timedelta(days=5),
-    observacoes='Entregar no período da manhã'
-)
-ItemPedido.objects.create(pedido=pedido1, produto=produtos[0], quantidade=1, preco_unitario=produtos[0].preco_venda)
-ItemPedido.objects.create(pedido=pedido1, produto=produtos[1], quantidade=2, preco_unitario=produtos[1].preco_venda)
-pedido1.calcular_totais()
-print(f"  ✓ Pedido #{pedido1.numero_pedido} - R$ {pedido1.valor_total}")
-
-# Pedido 2
-pedido2 = Pedido.objects.create(
-    cliente=clientes[2],
-    vendedor=usuarios['vendedor1'],
-    status='em_separacao',
-    forma_pagamento='boleto',
-    data_pedido=timezone.now() - timedelta(days=3),
-)
-ItemPedido.objects.create(pedido=pedido2, produto=produtos[3], quantidade=2, preco_unitario=produtos[3].preco_venda)
-ItemPedido.objects.create(pedido=pedido2, produto=produtos[5], quantidade=2, preco_unitario=produtos[5].preco_venda)
-pedido2.calcular_totais()
-print(f"  ✓ Pedido #{pedido2.numero_pedido} - R$ {pedido2.valor_total}")
-
-# Pedido 3
-pedido3 = Pedido.objects.create(
-    cliente=clientes[1],
-    vendedor=usuarios['vendedor2'],
-    status='pendente',
-    forma_pagamento='pix',
-    data_pedido=timezone.now() - timedelta(days=1),
-)
-ItemPedido.objects.create(pedido=pedido3, produto=produtos[4], quantidade=1, preco_unitario=produtos[4].preco_venda)
-pedido3.calcular_totais()
-print(f"  ✓ Pedido #{pedido3.numero_pedido} - R$ {pedido3.valor_total}")
-
-# =============================================================================
-# 10. FINANCEIRO
-# =============================================================================
-print("\n[10/10] Criando Registros Financeiros...")
-
-# Faturas dos pedidos
-fatura1 = Fatura.objects.create(
-    pedido=pedido1,
-    valor_total=pedido1.valor_total,
-    data_vencimento=date.today() + timedelta(days=30),
-    status='pago',
-    valor_pago=pedido1.valor_total
-)
-print(f"  ✓ Fatura {fatura1.numero_fatura} - Pedido #{pedido1.numero_pedido}")
-
-fatura2 = Fatura.objects.create(
-    pedido=pedido2,
-    valor_total=pedido2.valor_total,
-    data_vencimento=date.today() + timedelta(days=15),
-    status='pendente'
-)
-print(f"  ✓ Fatura {fatura2.numero_fatura} - Pedido #{pedido2.numero_pedido}")
-
-# Contas a Receber
-ContaReceber.objects.create(
-    descricao='Venda à vista - Cliente João Silva',
-    cliente=clientes[0],
-    fatura=fatura1,
-    valor=fatura1.valor_total,
-    valor_recebido=fatura1.valor_total,
-    data_vencimento=date.today() - timedelta(days=5),
-    data_recebimento=date.today() - timedelta(days=5),
-    forma_pagamento='cartao_credito',
-    status='recebido'
-)
-print(f"  ✓ Conta a Receber - Cliente {clientes[0].nome_razao_social}")
-
-ContaReceber.objects.create(
-    descricao='Venda a prazo - Tech Solutions',
-    cliente=clientes[2],
-    fatura=fatura2,
-    valor=fatura2.valor_total,
-    data_vencimento=date.today() + timedelta(days=15),
-    forma_pagamento='boleto',
-    status='pendente'
-)
-print(f"  ✓ Conta a Receber - Cliente {clientes[2].nome_razao_social}")
-
-# Contas a Pagar
-ContaPagar.objects.create(
-    descricao='Compra de equipamentos - TechParts',
-    fornecedor=fornecedores[0],
-    valor=Decimal('15000.00'),
-    data_vencimento=date.today() + timedelta(days=20),
-    categoria='compras',
-    forma_pagamento='transferencia',
-    status='pendente'
-)
-print(f"  ✓ Conta a Pagar - Fornecedor {fornecedores[0].nome}")
-
-ContaPagar.objects.create(
-    descricao='Material de escritório',
-    fornecedor=fornecedores[2],
-    valor=Decimal('500.00'),
-    valor_pago=Decimal('500.00'),
-    data_vencimento=date.today() - timedelta(days=2),
-    data_pagamento=date.today() - timedelta(days=2),
-    categoria='operacional',
-    forma_pagamento='dinheiro',
-    status='pago'
-)
-print(f"  ✓ Conta a Pagar - Fornecedor {fornecedores[2].nome}")
-
-print("\n" + "=" * 80)
-print("✅ BANCO DE DADOS POPULADO COM SUCESSO!")
-print("=" * 80)
-print("\n📊 RESUMO:")
-print(f"  - {Departamento.objects.count()} Departamentos")
-print(f"  - {Usuario.objects.count()} Usuários")
-print(f"  - {Cliente.objects.count()} Clientes")
-print(f"  - {Categoria.objects.count()} Categorias")
-print(f"  - {Produto.objects.count()} Produtos")
-print(f"  - {Fornecedor.objects.count()} Fornecedores")
-print(f"  - {Estoque.objects.count()} Registros de Estoque")
-print(f"  - {MovimentacaoEstoque.objects.count()} Movimentações")
-print(f"  - {Pedido.objects.count()} Pedidos")
-print(f"  - {ItemPedido.objects.count()} Itens de Pedido")
-print(f"  - {Fatura.objects.count()} Faturas")
-print(f"  - {ContaReceber.objects.count()} Contas a Receber")
-print(f"  - {ContaPagar.objects.count()} Contas a Pagar")
-print("\n🔐 CREDENCIAIS DE TESTE:")
-print("  Admin:      username=admin      password=admin123")
-print("  Vendedor:   username=vendedor1  password=senha123")
-print("  Financeiro: username=financeiro password=senha123")
-print("=" * 80)
+if __name__ == '__main__':
+    sys.exit(main())
