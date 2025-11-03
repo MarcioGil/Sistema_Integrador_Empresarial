@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
+import LoadingSpinner from '../components/LoadingSpinner'
+import ErrorMessage from '../components/ErrorMessage'
+import Toast from '../components/Toast'
+import { exportProdutosPDF } from '../utils/pdfExport'
 
 export default function Produtos() {
   const [produtos, setProdutos] = useState([])
   const [categorias, setCategorias] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [showCategoriaForm, setShowCategoriaForm] = useState(false)
   const [editingProduto, setEditingProduto] = useState(null)
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     fetchProdutos()
@@ -18,6 +24,7 @@ export default function Produtos() {
 
   const fetchProdutos = async () => {
     setLoading(true)
+    setError(null)
     try {
       const params = {}
       if (search) params.search = search
@@ -26,6 +33,7 @@ export default function Produtos() {
       setProdutos(data.results || data)
     } catch (err) {
       console.error('Erro ao buscar produtos', err)
+      setError('Não foi possível carregar os produtos. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -44,9 +52,19 @@ export default function Produtos() {
     if (!window.confirm('Desativar produto?')) return
     try {
       await api.patch(`/api/produtos/${id}/`, { ativo: false })
+      setToast({ message: 'Produto desativado com sucesso!', type: 'success' })
       fetchProdutos()
     } catch (err) {
-      alert('Erro ao desativar produto')
+      setToast({ message: 'Erro ao desativar produto', type: 'error' })
+    }
+  }
+
+  const handleExportPDF = () => {
+    try {
+      exportProdutosPDF(produtos, categorias)
+      setToast({ message: 'Relatório PDF gerado com sucesso!', type: 'success' })
+    } catch (err) {
+      setToast({ message: 'Erro ao gerar PDF', type: 'error' })
     }
   }
 
@@ -62,37 +80,46 @@ export default function Produtos() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Produtos</h2>
-        <div className="flex gap-2">
+    <div className="p-4 sm:p-6">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">📦 Produtos</h2>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleExportPDF}
+            disabled={produtos.length === 0}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50"
+          >
+            📄 Exportar PDF
+          </button>
           <button
             onClick={() => setShowCategoriaForm(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
           >
             📁 Categorias
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
             + Novo Produto
           </button>
         </div>
       </div>
 
-      <div className="mb-4 flex gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <input
           type="text"
-          placeholder="Buscar por nome ou código..."
+          placeholder="🔍 Buscar por nome ou código..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 max-w-md p-2 border rounded"
+          className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         />
         <select
           value={filtroCategoria}
           onChange={(e) => setFiltroCategoria(e.target.value)}
-          className="p-2 border rounded"
+          className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Todas as categorias</option>
           {categorias.map((c) => (
@@ -104,39 +131,67 @@ export default function Produtos() {
       </div>
 
       {loading ? (
-        <div>Carregando...</div>
+        <LoadingSpinner size="lg" text="Carregando produtos..." />
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchProdutos} />
+      ) : produtos.length === 0 ? (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+          <p className="text-gray-600 text-lg">Nenhum produto encontrado</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Cadastrar Primeiro Produto
+          </button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {produtos.map((p) => (
-            <div key={p.id} className="bg-white rounded shadow p-4 hover:shadow-lg transition">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-bold text-lg">{p.nome}</h3>
-                <span className={`px-2 py-1 text-xs rounded ${p.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            <div
+              key={p.id}
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-5 flex flex-col"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="font-bold text-lg text-gray-800 line-clamp-2">{p.nome}</h3>
+                <span
+                  className={`px-2 py-1 text-xs font-semibold rounded ${
+                    p.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}
+                >
                   {p.ativo ? 'Ativo' : 'Inativo'}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mb-2">{p.descricao || 'Sem descrição'}</p>
-              <p className="text-sm text-gray-500 mb-2">Código: {p.codigo}</p>
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xl font-bold text-green-600">
-                  R$ {parseFloat(p.preco_venda).toFixed(2)}
-                </span>
-                <span className="text-sm text-gray-500">
-                  Estoque: {p.estoque_minimo || 0}
-                </span>
+
+              <p className="text-sm text-gray-600 mb-3 line-clamp-2 flex-grow">
+                {p.descricao || 'Sem descrição'}
+              </p>
+
+              <div className="space-y-2 mb-4">
+                <p className="text-xs text-gray-500">
+                  <span className="font-semibold">Código:</span> {p.codigo}
+                </p>
+                <div className="flex justify-between items-center">
+                  <span className="text-2xl font-bold text-green-600">
+                    R$ {parseFloat(p.preco_venda || 0).toFixed(2)}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    📦 Est: {p.estoque_minimo || 0}
+                  </span>
+                </div>
               </div>
-              <div className="flex gap-2">
+
+              <div className="flex gap-2 mt-auto">
                 <button
                   onClick={() => handleEdit(p)}
-                  className="flex-1 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                  className="flex-1 bg-blue-500 text-white px-3 py-2 rounded text-sm font-medium hover:bg-blue-600 transition"
                 >
-                  Editar
+                  ✏️ Editar
                 </button>
                 <button
                   onClick={() => handleDelete(p.id)}
-                  className="flex-1 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                  className="flex-1 bg-red-500 text-white px-3 py-2 rounded text-sm font-medium hover:bg-red-600 transition"
                 >
-                  Desativar
+                  🗑️ Desativar
                 </button>
               </div>
             </div>

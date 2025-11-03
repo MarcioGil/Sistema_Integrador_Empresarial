@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
+import LoadingSpinner from '../components/LoadingSpinner'
+import ErrorMessage from '../components/ErrorMessage'
+import Toast from '../components/Toast'
+import { exportClientesPDF } from '../utils/pdfExport'
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editingCliente, setEditingCliente] = useState(null)
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     fetchClientes()
@@ -14,12 +20,14 @@ export default function Clientes() {
 
   const fetchClientes = async () => {
     setLoading(true)
+    setError(null)
     try {
       const params = search ? { search } : {}
       const { data } = await api.get('/api/clientes/', { params })
       setClientes(data.results || data)
     } catch (err) {
       console.error('Erro ao buscar clientes', err)
+      setError('Não foi possível carregar os clientes. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -29,9 +37,19 @@ export default function Clientes() {
     if (!window.confirm('Desativar cliente?')) return
     try {
       await api.patch(`/api/clientes/${id}/`, { ativo: false })
+      setToast({ message: 'Cliente desativado com sucesso!', type: 'success' })
       fetchClientes()
     } catch (err) {
-      alert('Erro ao desativar cliente')
+      setToast({ message: 'Erro ao desativar cliente', type: 'error' })
+    }
+  }
+
+  const handleExportPDF = () => {
+    try {
+      exportClientesPDF(clientes)
+      setToast({ message: 'Relatório PDF gerado com sucesso!', type: 'success' })
+    } catch (err) {
+      setToast({ message: 'Erro ao gerar PDF', type: 'error' })
     }
   }
 
@@ -47,69 +65,100 @@ export default function Clientes() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Clientes</h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          + Novo Cliente
-        </button>
+    <div className="p-4 sm:p-6">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">👥 Clientes</h2>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleExportPDF}
+            disabled={clientes.length === 0}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            📄 Exportar PDF
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            + Novo Cliente
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-6">
         <input
           type="text"
-          placeholder="Buscar por nome, CPF ou CNPJ..."
+          placeholder="🔍 Buscar por nome, CPF ou CNPJ..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-md p-2 border rounded"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
 
       {loading ? (
-        <div>Carregando...</div>
+        <LoadingSpinner size="lg" text="Carregando clientes..." />
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchClientes} />
+      ) : clientes.length === 0 ? (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+          <p className="text-gray-600 text-lg">Nenhum cliente encontrado</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Cadastrar Primeiro Cliente
+          </button>
+        </div>
       ) : (
-        <table className="w-full bg-white rounded shadow">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 text-left">Nome</th>
-              <th className="p-3 text-left">CPF/CNPJ</th>
-              <th className="p-3 text-left">Tipo</th>
-              <th className="p-3 text-left">Telefone</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Ativo</th>
-              <th className="p-3 text-left">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clientes.map((c) => (
-              <tr key={c.id} className="border-t hover:bg-gray-50">
-                <td className="p-3">{c.nome}</td>
-                <td className="p-3">{c.cpf_cnpj}</td>
-                <td className="p-3">{c.tipo === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}</td>
-                <td className="p-3">{c.telefone}</td>
-                <td className="p-3">{c.email}</td>
-                <td className="p-3">{c.ativo ? '✅' : '❌'}</td>
-                <td className="p-3">
-                  <button
-                    onClick={() => handleEdit(c)}
-                    className="text-blue-600 hover:underline mr-2"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(c.id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Desativar
-                  </button>
-                </td>
+        <div className="overflow-x-auto bg-white rounded-lg shadow">
+          <table className="w-full">
+            <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+              <tr>
+                <th className="p-3 text-left">Nome</th>
+                <th className="p-3 text-left hidden md:table-cell">CPF/CNPJ</th>
+                <th className="p-3 text-left hidden lg:table-cell">Tipo</th>
+                <th className="p-3 text-left hidden sm:table-cell">Telefone</th>
+                <th className="p-3 text-left hidden xl:table-cell">Email</th>
+                <th className="p-3 text-center">Ativo</th>
+                <th className="p-3 text-center">Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {clientes.map((c) => (
+                <tr key={c.id} className="border-t hover:bg-blue-50 transition">
+                  <td className="p-3 font-medium">{c.nome}</td>
+                  <td className="p-3 hidden md:table-cell text-gray-600">{c.cpf_cnpj}</td>
+                  <td className="p-3 hidden lg:table-cell">
+                    <span className={`px-2 py-1 rounded text-xs ${c.tipo === 'PF' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
+                      {c.tipo === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}
+                    </span>
+                  </td>
+                  <td className="p-3 hidden sm:table-cell text-gray-600">{c.telefone}</td>
+                  <td className="p-3 hidden xl:table-cell text-gray-600">{c.email}</td>
+                  <td className="p-3 text-center text-xl">{c.ativo ? '✅' : '❌'}</td>
+                  <td className="p-3">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleEdit(c)}
+                        className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => handleDelete(c.id)}
+                        className="text-red-600 hover:text-red-800 hover:underline font-medium"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {showForm && (

@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
+import LoadingSpinner from '../components/LoadingSpinner'
+import ErrorMessage from '../components/ErrorMessage'
+import Toast from '../components/Toast'
+import { exportVendasPDF } from '../utils/pdfExport'
 
 export default function Vendas() {
   const [pedidos, setPedidos] = useState([])
+  const [clientes, setClientes] = useState([])
+  const [produtos, setProdutos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showCarrinho, setShowCarrinho] = useState(false)
   const [filtroStatus, setFiltroStatus] = useState('')
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     fetchPedidos()
+    fetchClientes()
+    fetchProdutos()
   }, [filtroStatus])
 
   const fetchPedidos = async () => {
     setLoading(true)
+    setError(null)
     try {
       const params = {}
       if (filtroStatus) params.status = filtroStatus
@@ -20,8 +31,36 @@ export default function Vendas() {
       setPedidos(data.results || data)
     } catch (err) {
       console.error('Erro ao buscar pedidos', err)
+      setError('Não foi possível carregar os pedidos.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchClientes = async () => {
+    try {
+      const { data } = await api.get('/api/clientes/')
+      setClientes(data.results || data)
+    } catch (err) {
+      console.error('Erro ao buscar clientes', err)
+    }
+  }
+
+  const fetchProdutos = async () => {
+    try {
+      const { data } = await api.get('/api/produtos/')
+      setProdutos(data.results || data)
+    } catch (err) {
+      console.error('Erro ao buscar produtos', err)
+    }
+  }
+
+  const handleExportPDF = () => {
+    try {
+      exportVendasPDF(pedidos, clientes, produtos)
+      setToast({ message: 'Relatório PDF gerado com sucesso!', type: 'success' })
+    } catch (err) {
+      setToast({ message: 'Erro ao gerar PDF', type: 'error' })
     }
   }
 
@@ -56,22 +95,33 @@ export default function Vendas() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Vendas / Pedidos</h2>
-        <button
-          onClick={() => setShowCarrinho(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          🛒 Novo Pedido
-        </button>
+    <div className="p-4 sm:p-6">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">💰 Vendas / Pedidos</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportPDF}
+            disabled={pedidos.length === 0}
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition disabled:opacity-50"
+          >
+            📄 Exportar PDF
+          </button>
+          <button
+            onClick={() => setShowCarrinho(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+          >
+            🛒 Novo Pedido
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-6">
         <select
           value={filtroStatus}
           onChange={(e) => setFiltroStatus(e.target.value)}
-          className="p-2 border rounded"
+          className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Todos os status</option>
           <option value="pendente">Pendente</option>
@@ -82,7 +132,19 @@ export default function Vendas() {
       </div>
 
       {loading ? (
-        <div>Carregando...</div>
+        <LoadingSpinner size="lg" text="Carregando vendas..." />
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchPedidos} />
+      ) : pedidos.length === 0 ? (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+          <p className="text-gray-600 text-lg">Nenhum pedido encontrado</p>
+          <button
+            onClick={() => setShowCarrinho(true)}
+            className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
+          >
+            Criar Primeiro Pedido
+          </button>
+        </div>
       ) : (
         <div className="space-y-4">
           {pedidos.map((p) => (

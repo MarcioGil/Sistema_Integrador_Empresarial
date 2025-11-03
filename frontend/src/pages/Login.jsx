@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { useAuth } from '../contexts/AuthContext'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function Login() {
-  const navigate = useNavigate()
+  const { login, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -16,16 +16,21 @@ export default function Login() {
     const username = form.get('username')
     const password = form.get('password')
 
-    try {
-      const { data } = await axios.post('/api/token/', { username, password })
-      localStorage.setItem('access', data.access)
-      localStorage.setItem('refresh', data.refresh)
-      navigate('/')
-    } catch (err) {
-      setError('Usuário ou senha incorretos')
-    } finally {
-      setLoading(false)
+    const result = await login(username, password)
+    
+    if (!result.success) {
+      setError(result.error)
     }
+    
+    setLoading(false)
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+        <LoadingSpinner size="xl" />
+      </div>
+    )
   }
 
   return (

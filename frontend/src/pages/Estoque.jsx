@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
+import LoadingSpinner from '../components/LoadingSpinner'
+import ErrorMessage from '../components/ErrorMessage'
+import Toast from '../components/Toast'
+import { exportEstoquePDF } from '../utils/pdfExport'
 
 export default function Estoque() {
   const [estoques, setEstoques] = useState([])
   const [produtos, setProdutos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showMovimentacaoForm, setShowMovimentacaoForm] = useState(false)
   const [showHistorico, setShowHistorico] = useState(false)
   const [selectedProduto, setSelectedProduto] = useState(null)
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     fetchEstoques()
@@ -16,13 +22,24 @@ export default function Estoque() {
 
   const fetchEstoques = async () => {
     setLoading(true)
+    setError(null)
     try {
       const { data } = await api.get('/api/estoques/')
       setEstoques(data.results || data)
     } catch (err) {
       console.error('Erro ao buscar estoques', err)
+      setError('Não foi possível carregar os estoques.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExportPDF = () => {
+    try {
+      exportEstoquePDF(estoques, produtos)
+      setToast({ message: 'Relatório PDF gerado com sucesso!', type: 'success' })
+    } catch (err) {
+      setToast({ message: 'Erro ao gerar PDF', type: 'error' })
     }
   }
 
@@ -46,16 +63,25 @@ export default function Estoque() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Gestão de Estoque</h2>
+    <div className="p-4 sm:p-6">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">📈 Gestão de Estoque</h2>
+        <button
+          onClick={handleExportPDF}
+          disabled={estoques.length === 0}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50"
+        >
+          📄 Exportar PDF
+        </button>
       </div>
 
       {/* Alertas de estoque baixo */}
       <div className="mb-6">
         {estoques.filter(e => e.quantidade_atual <= e.produto_estoque_minimo).length > 0 && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-            <h4 className="font-bold text-yellow-800 mb-2">⚠️ Alertas de Estoque</h4>
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow">
+            <h4 className="font-bold text-yellow-800 mb-2 text-lg">⚠️ Alertas de Estoque</h4>
             <p className="text-yellow-700">
               {estoques.filter(e => e.quantidade_atual <= e.produto_estoque_minimo).length} produtos 
               abaixo do estoque mínimo
@@ -65,7 +91,9 @@ export default function Estoque() {
       </div>
 
       {loading ? (
-        <div>Carregando...</div>
+        <LoadingSpinner size="lg" text="Carregando estoque..." />
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchEstoques} />
       ) : (
         <div className="bg-white rounded shadow overflow-x-auto">
           <table className="w-full">

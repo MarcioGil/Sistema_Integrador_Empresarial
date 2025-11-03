@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
+import LoadingSpinner from '../components/LoadingSpinner'
+import ErrorMessage from '../components/ErrorMessage'
+import Toast from '../components/Toast'
+import { exportFinanceiroPDF } from '../utils/pdfExport'
 
 export default function Financeiro() {
   const [aba, setAba] = useState('receber') // 'receber' ou 'pagar'
   const [contas, setContas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [filtroStatus, setFiltroStatus] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [showPagamentoForm, setShowPagamentoForm] = useState(false)
   const [selectedConta, setSelectedConta] = useState(null)
   const [resumo, setResumo] = useState({ pendente: 0, pago: 0, vencido: 0 })
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     fetchContas()
@@ -17,6 +23,7 @@ export default function Financeiro() {
 
   const fetchContas = async () => {
     setLoading(true)
+    setError(null)
     try {
       const endpoint = aba === 'receber' ? '/api/contas-receber/' : '/api/contas-pagar/'
       const params = {}
@@ -33,8 +40,18 @@ export default function Financeiro() {
       setResumo({ pendente, pago, vencido })
     } catch (err) {
       console.error('Erro ao buscar contas', err)
+      setError('Não foi possível carregar as contas financeiras.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExportPDF = () => {
+    try {
+      exportFinanceiroPDF(contas)
+      setToast({ message: 'Relatório PDF gerado com sucesso!', type: 'success' })
+    } catch (err) {
+      setToast({ message: 'Erro ao gerar PDF', type: 'error' })
     }
   }
 
@@ -48,36 +65,51 @@ export default function Financeiro() {
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Financeiro</h2>
+    <div className="p-4 sm:p-6">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">💳 Financeiro</h2>
+        <button
+          onClick={handleExportPDF}
+          disabled={contas.length === 0}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50"
+        >
+          📄 Exportar PDF
+        </button>
+      </div>
 
       {/* Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-yellow-100 p-4 rounded shadow">
+        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded shadow">
           <p className="text-yellow-800 font-semibold">💰 Pendente</p>
           <p className="text-2xl font-bold text-yellow-900">R$ {resumo.pendente.toFixed(2)}</p>
         </div>
-        <div className="bg-green-100 p-4 rounded shadow">
+        <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded shadow">
           <p className="text-green-800 font-semibold">✓ Pago</p>
           <p className="text-2xl font-bold text-green-900">R$ {resumo.pago.toFixed(2)}</p>
         </div>
-        <div className="bg-red-100 p-4 rounded shadow">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow">
           <p className="text-red-800 font-semibold">⚠️ Vencido</p>
           <p className="text-2xl font-bold text-red-900">R$ {resumo.vencido.toFixed(2)}</p>
         </div>
       </div>
 
       {/* Abas */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-6">
         <button
           onClick={() => setAba('receber')}
-          className={`px-4 py-2 rounded ${aba === 'receber' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          className={`px-6 py-2 rounded-lg font-semibold transition ${
+            aba === 'receber' ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
         >
           📥 Contas a Receber
         </button>
         <button
           onClick={() => setAba('pagar')}
-          className={`px-4 py-2 rounded ${aba === 'pagar' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          className={`px-6 py-2 rounded-lg font-semibold transition ${
+            aba === 'pagar' ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
         >
           📤 Contas a Pagar
         </button>
