@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Login</title>
+</head>
+<body>
+    <h1>Teste de Login Direto</h1>
+    <button onclick="testarLogin()">Testar Login</button>
+    <pre id="resultado"></pre>
+
+    <script>
+        async function testarLogin() {
+            const resultado = document.getElementById('resultado');
+            resultado.textContent = 'Testando...';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/token/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                resultado.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    resultado.textContent = '✅ LOGIN FUNCIONOU!\n\n' + resultado.textContent;
+                } else {
+                    resultado.textContent = '❌ ERRO:\n\n' + resultado.textContent;
+                }
+            } catch (error) {
+                resultado.textContent = '❌ ERRO: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

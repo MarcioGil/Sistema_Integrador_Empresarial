@@ -1,7 +1,12 @@
 import axios from 'axios'
 
+// Usa variável de ambiente em produção ou proxy local em desenvolvimento
+const baseURL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL 
+  : '/api'
+
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json'
   }

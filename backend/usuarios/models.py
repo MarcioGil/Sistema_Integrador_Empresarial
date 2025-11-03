@@ -51,8 +51,13 @@ class Usuario(AbstractUser):
         ('afastado', 'Afastado'),
     ]
     
+    TIPO_CHOICES = [
+        ('comum', 'Comum'),
+        ('gerente', 'Gerente'),
+        ('admin', 'Administrador'),
+    ]
+    
     # Campos adicionais
-    nome_completo = models.CharField('Nome Completo', max_length=200)
     cpf = models.CharField('CPF', max_length=14, unique=True, null=True, blank=True)
     telefone = models.CharField('Telefone', max_length=20, blank=True, null=True)
     celular = models.CharField('Celular', max_length=20, blank=True, null=True)
@@ -67,7 +72,9 @@ class Usuario(AbstractUser):
         verbose_name='Departamento'
     )
     cargo = models.CharField('Cargo', max_length=100, blank=True, null=True)
+    tipo = models.CharField('Tipo', max_length=10, choices=TIPO_CHOICES, default='comum')
     data_admissao = models.DateField('Data de Admissão', null=True, blank=True)
+    data_nascimento = models.DateField('Data de Nascimento', null=True, blank=True)
     data_demissao = models.DateField('Data de Demissão', null=True, blank=True)
     salario = models.DecimalField(
         'Salário',
@@ -90,15 +97,21 @@ class Usuario(AbstractUser):
     
     # Informações adicionais
     observacoes = models.TextField('Observações', blank=True, null=True)
+    data_cadastro = models.DateTimeField('Data de Cadastro', auto_now_add=True, null=True)
     data_atualizacao = models.DateTimeField('Data de Atualização', auto_now=True)
     
     class Meta:
         verbose_name = 'Usuário'
         verbose_name_plural = 'Usuários'
-        ordering = ['nome_completo']
+        ordering = ['first_name', 'last_name']
     
     def __str__(self):
-        return f"{self.nome_completo} ({self.username})"
+        return self.get_full_name() or self.username
+    
+    @property
+    def nome_completo(self):
+        """Retorna o nome completo do usuário"""
+        return self.get_full_name() or self.username
     
     @property
     def is_ativo_trabalho(self):

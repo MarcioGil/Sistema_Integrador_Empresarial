@@ -29,7 +29,12 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-# Railway.app domains
+# PythonAnywhere domains
+if config('PYTHONANYWHERE_DOMAIN', default=None):
+    ALLOWED_HOSTS.append(config('PYTHONANYWHERE_DOMAIN'))
+    ALLOWED_HOSTS.append('.pythonanywhere.com')
+
+# Railway.app domains (caso queira testar depois)
 if config('RAILWAY_ENVIRONMENT', default=None):
     ALLOWED_HOSTS.append('.railway.app')
     ALLOWED_HOSTS.append('.up.railway.app')
@@ -109,26 +114,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Configuração adaptável: SQLite para desenvolvimento, PostgreSQL para produção
-import dj_database_url
-
-if config('DATABASE_URL', default=None):
-    # Produção: PostgreSQL via DATABASE_URL (Railway, Render, Heroku, etc.)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
+# Configuração adaptável: SQLite para desenvolvimento e produção (PythonAnywhere)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
             conn_health_checks=True,
         )
     }
-else:
-    # Desenvolvimento: SQLite
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
     }
+}
 
 
 # Password validation
@@ -238,7 +233,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://127.0.0.1:3000'
+    default='http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173'
 ).split(',')
 
 CORS_ALLOW_CREDENTIALS = True

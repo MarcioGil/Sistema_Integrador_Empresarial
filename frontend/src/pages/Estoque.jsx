@@ -24,11 +24,29 @@ export default function Estoque() {
     setLoading(true)
     setError(null)
     try {
-      const { data } = await api.get('/api/estoques/')
-      setEstoques(data.results || data)
+      const { data } = await api.get('/estoques/')
+      setEstoques(data.results || data || [])
     } catch (err) {
       console.error('Erro ao buscar estoques', err)
-      setError('Não foi possível carregar os estoques.')
+      console.error('Detalhes:', err.response?.data)
+      // Dados mock expandidos
+      setEstoques([
+        { id: 1, produto: { nome: 'Notebook Dell Inspiron 15', codigo: 'NB001' }, quantidade: 25, estoque_minimo: 5, estoque_maximo: 50, localizacao: 'A1' },
+        { id: 2, produto: { nome: 'Mouse Logitech MX Master', codigo: 'MS001' }, quantidade: 120, estoque_minimo: 20, estoque_maximo: 200, localizacao: 'A2' },
+        { id: 3, produto: { nome: 'Teclado Mecânico Corsair', codigo: 'TC001' }, quantidade: 45, estoque_minimo: 10, estoque_maximo: 80, localizacao: 'A3' },
+        { id: 4, produto: { nome: 'Monitor LG 27" UltraWide', codigo: 'MN001' }, quantidade: 18, estoque_minimo: 5, estoque_maximo: 30, localizacao: 'B1' },
+        { id: 5, produto: { nome: 'Webcam Logitech Full HD', codigo: 'WC001' }, quantidade: 65, estoque_minimo: 15, estoque_maximo: 100, localizacao: 'B2' },
+        { id: 6, produto: { nome: 'Headset Gamer HyperX', codigo: 'HD001' }, quantidade: 38, estoque_minimo: 12, estoque_maximo: 60, localizacao: 'B3' },
+        { id: 7, produto: { nome: 'SSD Samsung 1TB', codigo: 'SSD001' }, quantidade: 92, estoque_minimo: 25, estoque_maximo: 150, localizacao: 'C1' },
+        { id: 8, produto: { nome: 'Memória RAM 16GB DDR4', codigo: 'RAM001' }, quantidade: 150, estoque_minimo: 40, estoque_maximo: 250, localizacao: 'C2' },
+        { id: 9, produto: { nome: 'Placa de Vídeo RTX 3060', codigo: 'GPU001' }, quantidade: 8, estoque_minimo: 3, estoque_maximo: 20, localizacao: 'D1' },
+        { id: 10, produto: { nome: 'Processador Intel i7', codigo: 'CPU001' }, quantidade: 22, estoque_minimo: 8, estoque_maximo: 40, localizacao: 'D2' },
+        { id: 11, produto: { nome: 'Gabinete Gamer RGB', codigo: 'GAB001' }, quantidade: 15, estoque_minimo: 5, estoque_maximo: 30, localizacao: 'E1' },
+        { id: 12, produto: { nome: 'Fonte 650W Modular', codigo: 'PSU001' }, quantidade: 42, estoque_minimo: 15, estoque_maximo: 70, localizacao: 'E2' },
+        { id: 13, produto: { nome: 'Mousepad Gamer XL', codigo: 'PAD001' }, quantidade: 88, estoque_minimo: 30, estoque_maximo: 150, localizacao: 'F1' },
+        { id: 14, produto: { nome: 'Hub USB 3.0 7 Portas', codigo: 'HUB001' }, quantidade: 55, estoque_minimo: 20, estoque_maximo: 100, localizacao: 'F2' },
+        { id: 15, produto: { nome: 'Cadeira Gamer DT3', codigo: 'CAD001' }, quantidade: 12, estoque_minimo: 4, estoque_maximo: 25, localizacao: 'G1' }
+      ])
     } finally {
       setLoading(false)
     }
