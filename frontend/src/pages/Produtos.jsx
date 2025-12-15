@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
-import LoadingSpinner from '../components/LoadingSpinner'
-import ErrorMessage from '../components/ErrorMessage'
-import Toast from '../components/Toast'
-import { exportProdutosPDF } from '../utils/pdfExport'
+import LoadingSpinner from '../components/LoadingSpinner.jsx'
+import ErrorMessage from '../components/ErrorMessage.jsx'
+import Toast from '../components/Toast.jsx'
+import { exportProdutosPDF } from '../utils/pdfExport.js'
 
 export default function Produtos() {
   const [produtos, setProdutos] = useState([])
@@ -16,6 +16,7 @@ export default function Produtos() {
   const [showCategoriaForm, setShowCategoriaForm] = useState(false)
   const [editingProduto, setEditingProduto] = useState(null)
   const [toast, setToast] = useState(null)
+  const { user } = require('../contexts/AuthContext').useAuth();
 
   useEffect(() => {
     fetchProdutos()
@@ -106,18 +107,22 @@ export default function Produtos() {
           >
             📄 Exportar PDF
           </button>
-          <button
-            onClick={() => setShowCategoriaForm(true)}
-            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
-          >
-            📁 Categorias
-          </button>
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            + Novo Produto
-          </button>
+          {user?.role === 'admin' || user?.role === 'gerente' ? (
+            <>
+              <button
+                onClick={() => setShowCategoriaForm(true)}
+                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+              >
+                📁 Categorias
+              </button>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+              >
+                + Novo Produto
+              </button>
+            </>
+          ) : null}
         </div>
       </div>
 
@@ -425,23 +430,6 @@ function ProdutoForm({ produto, categorias, onClose }) {
                 <span className="font-semibold">Ativo</span>
               </label>
             </div>
-          </div>
-
-          <div className="flex gap-2 mt-6">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              {loading ? 'Salvando...' : 'Salvar'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400"
-            >
-              Cancelar
-            </button>
           </div>
         </form>
       </div>

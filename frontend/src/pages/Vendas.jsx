@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
-import LoadingSpinner from '../components/LoadingSpinner'
-import ErrorMessage from '../components/ErrorMessage'
-import Toast from '../components/Toast'
-import { exportVendasPDF } from '../utils/pdfExport'
+import LoadingSpinner from '../components/LoadingSpinner.jsx'
+import ErrorMessage from '../components/ErrorMessage.jsx'
+import Toast from '../components/Toast.jsx'
+import { exportVendasPDF } from '../utils/pdfExport.js'
 
 export default function Vendas() {
   const [pedidos, setPedidos] = useState([])
@@ -117,18 +117,20 @@ export default function Vendas() {
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">💰 Vendas / Pedidos</h2>
         <div className="flex gap-2">
           <button
-            onClick={handleExportPDF}
             disabled={pedidos.length === 0}
             className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition disabled:opacity-50"
+            onClick={handleExportPDF}
           >
             📄 Exportar PDF
           </button>
-          <button
-            onClick={() => setShowCarrinho(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-          >
-            🛒 Novo Pedido
-          </button>
+          {user?.role === 'admin' || user?.role === 'vendedor' || user?.role === 'gerente' ? (
+            <button
+              onClick={() => setShowCarrinho(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            >
+              🛒 Novo Pedido
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -196,22 +198,22 @@ export default function Vendas() {
                   Total: R$ {parseFloat(p.valor_total).toFixed(2)}
                 </div>
                 <div className="flex gap-2">
-                  {p.status === 'pendente' && (
-                    <>
-                      <button
-                        onClick={() => handleFinalizar(p.id)}
-                        className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                      >
-                        ✓ Finalizar
-                      </button>
-                      <button
-                        onClick={() => handleCancelar(p.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                      >
-                        ✗ Cancelar
-                      </button>
-                    </>
-                  )}
+                          {p.status === 'pendente' && (user?.role === 'admin' || user?.role === 'gerente') && (
+                            <>
+                              <button
+                                onClick={() => handleFinalizar(p.id)}
+                                className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                              >
+                                ✓ Finalizar
+                              </button>
+                              <button
+                                onClick={() => handleCancelar(p.id)}
+                                className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                              >
+                                ✗ Cancelar
+                              </button>
+                            </>
+                          )}
                 </div>
               </div>
             </div>

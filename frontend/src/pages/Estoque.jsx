@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
-import LoadingSpinner from '../components/LoadingSpinner'
-import ErrorMessage from '../components/ErrorMessage'
-import Toast from '../components/Toast'
-import { exportEstoquePDF } from '../utils/pdfExport'
+import LoadingSpinner from '../components/LoadingSpinner.jsx'
+import ErrorMessage from '../components/ErrorMessage.jsx'
+import Toast from '../components/Toast.jsx'
+import { exportEstoquePDF } from '../utils/pdfExport.js'
 
 export default function Estoque() {
+  const { user } = useAuth()
   const [estoques, setEstoques] = useState([])
   const [produtos, setProdutos] = useState([])
   const [loading, setLoading] = useState(true)
@@ -154,18 +156,22 @@ export default function Estoque() {
                       {new Date(e.ultima_atualizacao).toLocaleString('pt-BR')}
                     </td>
                     <td className="p-3">
-                      <button
-                        onClick={() => handleMovimentacao(e)}
-                        className="text-blue-600 hover:underline mr-3"
-                      >
-                        📦 Movimentar
-                      </button>
-                      <button
-                        onClick={() => handleVerHistorico(e)}
-                        className="text-green-600 hover:underline"
-                      >
-                        📋 Histórico
-                      </button>
+                      {(user?.role === 'admin' || user?.role === 'gerente' || user?.role === 'financeiro') && (
+                        <button
+                          onClick={() => handleMovimentacao(e)}
+                          className="text-blue-600 hover:underline mr-3"
+                        >
+                          📦 Movimentar
+                        </button>
+                      )}
+                      {(user?.role === 'admin' || user?.role === 'gerente' || user?.role === 'financeiro') && (
+                        <button
+                          onClick={() => handleVerHistorico(e)}
+                          className="text-green-600 hover:underline"
+                        >
+                          📋 Histórico
+                        </button>
+                      )}
                     </td>
                   </tr>
                 )

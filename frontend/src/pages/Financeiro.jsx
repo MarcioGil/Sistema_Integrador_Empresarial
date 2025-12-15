@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
-import LoadingSpinner from '../components/LoadingSpinner'
-import ErrorMessage from '../components/ErrorMessage'
-import Toast from '../components/Toast'
-import { exportFinanceiroPDF } from '../utils/pdfExport'
+import LoadingSpinner from '../components/LoadingSpinner.jsx'
+import ErrorMessage from '../components/ErrorMessage.jsx'
+import Toast from '../components/Toast.jsx'
+import { exportFinanceiroPDF } from '../utils/pdfExport.js'
 
 export default function Financeiro() {
   const [aba, setAba] = useState('receber') // 'receber' ou 'pagar'
@@ -155,12 +155,14 @@ export default function Financeiro() {
           <option value="pago">Pago</option>
           <option value="cancelado">Cancelado</option>
         </select>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          + Nova Conta
-        </button>
+        {user?.role === 'admin' || user?.role === 'financeiro' || user?.role === 'gerente' ? (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            + Nova Conta
+          </button>
+        ) : null}
       </div>
 
       {loading ? (
@@ -200,7 +202,7 @@ export default function Financeiro() {
                       </span>
                     </td>
                     <td className="p-3">
-                      {c.status === 'pendente' && (
+                      {c.status === 'pendente' && (user?.role === 'admin' || user?.role === 'financeiro' || user?.role === 'gerente') && (
                         <button
                           onClick={() => handleRegistrarPagamento(c)}
                           className="text-green-600 hover:underline"

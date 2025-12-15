@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import React, { useState } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 export default function Layout() {
-  const { user, logout } = useAuth()
-  const location = useLocation()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { path: '/', icon: '📊', label: 'Dashboard' },
@@ -14,11 +15,16 @@ export default function Layout() {
     { path: '/estoque', icon: '📈', label: 'Estoque' },
     { path: '/vendas', icon: '💰', label: 'Vendas' },
     { path: '/financeiro', icon: '💳', label: 'Financeiro' }
-  ]
+  ];
 
   const isActive = (path) => {
-    return location.pathname === path
-  }
+    return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -40,14 +46,12 @@ export default function Layout() {
         } md:block w-full md:w-64 bg-gray-900 text-white p-4 flex flex-col`}
       >
         <h3 className="hidden md:block text-xl font-bold mb-6">Sistema Integrador</h3>
-        
         {user && (
           <div className="bg-gray-800 rounded-lg p-3 mb-6">
             <p className="text-sm text-gray-400">Logado como:</p>
             <p className="font-semibold">{user.username || 'Usuário'}</p>
           </div>
         )}
-
         <nav className="flex flex-col gap-2 flex-1">
           {menuItems.map((item) => (
             <Link
@@ -65,19 +69,17 @@ export default function Layout() {
             </Link>
           ))}
         </nav>
-
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="mt-4 p-3 bg-red-600 rounded hover:bg-red-700 transition font-semibold"
         >
           🚪 Sair
         </button>
       </aside>
-
       {/* Main Content */}
       <main className="flex-1 bg-gray-50 overflow-y-auto">
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

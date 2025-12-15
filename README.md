@@ -1,8 +1,30 @@
 <div align="center">
 
+
 # 🏢 Sistema Integrador Empresarial
 
 ### Plataforma completa de gestão empresarial integrada
+
+---
+
+## 🚀 Valor Inegável para o Seu Negócio (Foco no Lucro e Controle)
+O Sistema Integrador Empresarial não é apenas um software, é seu parceiro estratégico para acabar com a dependência de planilhas e achismos. Desenvolvemos esta plataforma focados nos problemas que mais roubam tempo e dinheiro dos pequenos e médios empresários:
+
+| Área de Impacto         | Problema Atual                                                                 | O que o Sistema Resolve (Vantagem)                                                                                       |
+|------------------------|-------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| 💰 Fluxo de Caixa      | Incerteza sobre o que entra e sai, dependência do contador para relatórios.    | **Controle 100% em Tempo Real:** Visão clara do Contas a Pagar/Receber e alertas automáticos sobre faturas e compromissos.|
+| 📦 Estoque e Vendas    | Perda de vendas por falta de produto ou prejuízo por excesso de estoque.       | **Automação e Prevenção de Perdas:** Alertas de estoque mínimo e atualização automática de preços e margens.             |
+| 🛡️ Segurança/Auditoria| Falta de rastreamento sobre quem fez o quê, dificultando auditorias.           | **Rastreamento Total:** Log de todas as operações, com IP e usuário, garantindo integridade dos dados.                   |
+| 👥 Tomada de Decisão   | Uso de dados antigos ou incompletos para definir estratégias.                  | **Dashboard Analítico:** Métricas e KPIs em tempo real para decisões rápidas e seguras.                                  |
+
+### Sua Vantagem Competitiva
+- **Menos Tempo:** Equipe livre do trabalho manual e repetitivo (Foco nos Módulos de Vendas e Cadastro).
+- **Mais Dinheiro:** Otimização do Estoque e visibilidade das margens de lucro (Foco nos Módulos de Estoque e Produtos).
+- **Mais Segurança:** Dados protegidos por Autenticação JWT e Auditoria Completa.
+
+Este trecho usa uma linguagem direta, foca nos problemas (Dor) e vende o Benefício (Solução). Use-o para introduzir os Diferenciais e as Funcionalidades que vêm a seguir.
+
+---
 
 [![Django](https://img.shields.io/badge/Django-5.0.7-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![DRF](https://img.shields.io/badge/DRF-3.15.2-ff1709?style=for-the-badge&logo=django&logoColor=white)](https://www.django-rest-framework.org/)
@@ -13,6 +35,35 @@
 </div>
 
 ---
+
+## 🖼️ Tela de Login
+
+Veja abaixo a tela de login do sistema, conforme exibida no portal da Vercel:
+
+<div align="center">
+  <img src="docs/screenshots/WhatsApp%20Image%202025-12-14%20at%2021.48.59.jpeg" alt="Tela de Login" width="400"/>
+</div>
+
+---
+
+## 🔑 Acesso Demo e Login Local
+
+Caso o site principal esteja fora do ar, você pode acessar o sistema localmente para testes e demonstração:
+
+1. Certifique-se de que o backend e o frontend estejam rodando em sua máquina (consulte as instruções de execução abaixo).
+2. Acesse o sistema pelo navegador em: [http://localhost:3000](http://localhost:3000) (frontend padrão).
+3. Utilize as seguintes credenciais demo para login:
+   - **Usuário:** demo
+   - **Senha:** demo123
+
+Se encontrar dificuldades, consulte a documentação detalhada em [docs/FRONTEND_GUIDE.md](docs/FRONTEND_GUIDE.md) ou [docs/DEPLOY.md](docs/DEPLOY.md).
+
+
+## ✨ Valor para o Negócio (Para o Usuário Final)
+
+* **Controle de Fluxo de Caixa (Financeiro):** Receba alertas de faturas atrasadas e controle contas a pagar e receber em tempo real.
+* **Lucro Otimizado (Produtos):** Calcule a margem de lucro real de cada produto automaticamente.
+* **Fim dos Erros de Estoque (Estoque):** Receba alertas de reposição e gerencie o inventário com precisão.
 
 ## 👨‍💻 Sobre o Desenvolvedor
 
@@ -52,7 +103,32 @@ Apaixonado por tecnologia, inovação e justiça social
 
 ---
 
-## 🎯 Sobre o Projeto
+
+## ♿ Acessibilidade
+
+O Sistema Integrador Empresarial foi projetado com foco em acessibilidade digital:
+- **Contraste elevado** e fontes legíveis para facilitar a leitura.
+- **Navegação por teclado** em todos os formulários e menus.
+- **Compatibilidade com leitores de tela** (WAI-ARIA).
+- **Mensagens de erro claras** e feedback visual para ações do usuário.
+- **Responsividade total**: uso confortável em desktop, tablet e mobile.
+
+Essas práticas garantem que pessoas com diferentes necessidades possam utilizar o sistema com autonomia e eficiência.
+
+---
+
+## 🛒 Módulo de Vendas: Controle e Lucro
+
+O módulo de vendas é o coração do sistema para transformar oportunidades em receita:
+- **Pedidos com múltiplos itens** e cálculo automático de totais.
+- **Status detalhado** (pendente, confirmado, em separação, enviado, entregue, cancelado).
+- **Formas de pagamento flexíveis** e previsão de entrega.
+- **Ações rápidas**: confirmação/cancelamento de pedidos, histórico completo e integração com o financeiro.
+- **Automação de estoque**: baixa automática ao vender, evitando rupturas e prejuízos.
+
+Com isso, o gestor tem controle total do ciclo de vendas, reduz erros e aumenta a satisfação do cliente.
+
+---
 
 O **Sistema Integrador Empresarial** é uma solução completa e moderna para gestão empresarial, desenvolvido com as melhores práticas de engenharia de software. O sistema integra diferentes setores da empresa em uma única plataforma, proporcionando eficiência operacional, controle financeiro e tomada de decisões baseada em dados.
 
@@ -75,31 +151,28 @@ O **Sistema Integrador Empresarial** é uma solução completa e moderna para ge
 
 O projeto segue uma arquitetura moderna baseada em:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        FRONTEND (React)                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │   Dashboard  │  │    Módulos   │  │   Relatórios │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
-                            ▲ │
-                     HTTP   │ │  JSON
-                            │ ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    API REST (Django DRF)                     │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  JWT Auth │ Serializers │ ViewSets │ Permissions     │  │
-│  └──────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                            ▲ │
-                    ORM     │ │  SQL
-                            │ ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   BANCO DE DADOS (SQLite)                    │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐      │
-│  │Clientes │  │Produtos │  │ Vendas  │  │Financeiro│      │
-│  └─────────┘  └─────────┘  └─────────┘  └─────────┘      │
-└─────────────────────────────────────────────────────────────┘
+
+```mermaid
+flowchart TD
+  subgraph Frontend [FRONTEND (React)]
+    Dashboard[Dashboard]
+    Modulos[Módulos]
+    Relatorios[Relatórios]
+  end
+  subgraph API [API REST (Django DRF)]
+    JWT[JWT Auth]
+    Serializers[Serializers]
+    ViewSets[ViewSets]
+    Permissions[Permissions]
+  end
+  subgraph DB [BANCO DE DADOS (SQLite)]
+    Clientes[Clientes]
+    Produtos[Produtos]
+    Vendas[Vendas]
+    Financeiro[Financeiro]
+  end
+  Frontend -->|HTTP/JSON| API
+  API -->|ORM/SQL| DB
 ```
 
 ### Padrões Utilizados
@@ -206,7 +279,16 @@ O projeto segue uma arquitetura moderna baseada em:
 
 </div>
 
-> **📝 Nota:** Para visualizar o sistema em ação localmente, siga as instruções de [Instalação](#-instalação) ou acesse a [demo online](#-demo-online) (em breve).
+> **📝 Nota:** Para visualizar o sistema em ação localmente, siga as instruções de [Instalação](#-instalação) ou acesse a versão online em produção:
+>
+> **Frontend (Vercel):** https://sistema-integrador.vercel.app
+> **Backend (Railway):** https://sistema-integrador-production.up.railway.app
+>
+> **Login de demonstração:**
+> - Usuário: admin
+> - Senha: Admin@123!
+>
+> Caso o link do Vercel retorne erro 404, aguarde alguns minutos e tente novamente. Se persistir, consulte o guia de deploy ou entre em contato com o autor.
 
 ---
 

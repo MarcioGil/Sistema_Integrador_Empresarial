@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import api from '../services/api'
-import LoadingSpinner from '../components/LoadingSpinner'
-import ErrorMessage from '../components/ErrorMessage'
-import Toast from '../components/Toast'
-import { exportClientesPDF } from '../utils/pdfExport'
+import LoadingSpinner from '../components/LoadingSpinner.jsx'
+import ErrorMessage from '../components/ErrorMessage.jsx'
+import Toast from '../components/Toast.jsx'
+import { exportClientesPDF } from '../utils/pdfExport.js'
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([])
@@ -13,6 +13,7 @@ export default function Clientes() {
   const [showForm, setShowForm] = useState(false)
   const [editingCliente, setEditingCliente] = useState(null)
   const [toast, setToast] = useState(null)
+  const { user } = require('../contexts/AuthContext').useAuth();
 
   useEffect(() => {
     fetchClientes()
@@ -86,12 +87,14 @@ export default function Clientes() {
           >
             📄 Exportar PDF
           </button>
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            + Novo Cliente
-          </button>
+          {user?.role === 'admin' || user?.role === 'gerente' ? (
+            <button
+              onClick={() => setShowForm(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              + Novo Cliente
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -148,18 +151,22 @@ export default function Clientes() {
                   <td className="p-3 text-center text-xl">{c.ativo ? '✅' : '❌'}</td>
                   <td className="p-3">
                     <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(c)}
-                        className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleDelete(c.id)}
-                        className="text-red-600 hover:text-red-800 hover:underline font-medium"
-                      >
-                        🗑️
-                      </button>
+                      {user?.role === 'admin' || user?.role === 'gerente' ? (
+                        <>
+                          <button
+                            onClick={() => handleEdit(c)}
+                            className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDelete(c.id)}
+                            className="text-red-600 hover:text-red-800 hover:underline font-medium"
+                          >
+                            🗑️
+                          </button>
+                        </>
+                      ) : null}
                     </div>
                   </td>
                 </tr>

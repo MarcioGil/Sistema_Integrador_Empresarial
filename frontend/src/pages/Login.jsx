@@ -1,36 +1,32 @@
-import React, { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import LoadingSpinner from '../components/LoadingSpinner'
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import LoadingSpinner from '../components/LoadingSpinner.jsx';
 
 export default function Login() {
-  const { login, loading: authLoading } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const { login, loading: authLoading } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    const form = new FormData(e.target)
-    const username = form.get('username')
-    const password = form.get('password')
-
-    const result = await login(username, password)
-    
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    const form = new FormData(e.target);
+    const username = form.get('username');
+    const password = form.get('password');
+    const result = await login(username, password);
     if (!result.success) {
-      setError(result.error)
+      setError(result.error);
     }
-    
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
         <LoadingSpinner size="xl" />
       </div>
-    )
+    );
   }
 
   return (
@@ -41,30 +37,30 @@ export default function Login() {
       >
         <h1 className="text-3xl font-bold mb-2 text-gray-800">Sistema Integrador</h1>
         <p className="text-gray-600 mb-6">Entre com suas credenciais</p>
-
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div role="alert" aria-live="assertive" className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
-
-        <label className="block mb-2 font-semibold text-gray-700">Usuário</label>
+        <label htmlFor="username" className="block mb-2 font-semibold text-gray-700">Usuário</label>
         <input
+          id="username"
           name="username"
           required
-          className="w-full p-3 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-4"
           placeholder="Digite seu usuário"
+          aria-label="Usuário"
         />
-
-        <label className="block mb-2 font-semibold text-gray-700">Senha</label>
+        <label htmlFor="password" className="block mb-2 font-semibold text-gray-700">Senha</label>
         <input
+          id="password"
           name="password"
           type="password"
           required
-          className="w-full p-3 border rounded mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-4"
           placeholder="Digite sua senha"
+          aria-label="Senha"
         />
-
         <button
           type="submit"
           disabled={loading}
@@ -72,11 +68,10 @@ export default function Login() {
         >
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
-
         <p className="text-center text-gray-600 text-sm mt-4">
           Desenvolvido por Márcio Gil
         </p>
       </form>
     </div>
-  )
+  );
 }

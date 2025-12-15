@@ -1,3 +1,14 @@
+# Deploy rápido no Vercel
+
+1. Suba o frontend para o GitHub.
+2. Crie conta em https://vercel.com/ e clique em "New Project" > "Import Git Repository".
+3. Vercel detecta Vite automaticamente.
+4. Configure variável de ambiente:
+	- VITE_API_URL=https://seu-backend.railway.app/api
+5. Deploy automático a cada push.
+6. Teste o frontend no domínio gerado.
+
+Veja `.env.example` para configuração.
 # Frontend - Sistema Integrador Empresarial
 
 Pequeno scaffold em React + Vite + Tailwind para demonstrar a aplicação.

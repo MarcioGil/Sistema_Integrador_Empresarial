@@ -1,26 +1,26 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Clientes from './pages/Clientes'
-import Produtos from './pages/Produtos'
-import Estoque from './pages/Estoque'
-import Vendas from './pages/Vendas'
-import Financeiro from './pages/Financeiro'
-import Layout from './components/Layout'
-import ProtectedRoute from './components/ProtectedRoute'
+import Login from './pages/Login.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import Clientes from './pages/Clientes.jsx'
+import Produtos from './pages/Produtos.jsx'
+import Estoque from './pages/Estoque.jsx'
+import Vendas from './pages/Vendas.jsx'
+import Financeiro from './pages/Financeiro.jsx'
+import Layout from './components/Layout.jsx'
+import PrivateRoute from './components/PrivateRoute.jsx'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+      <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Dashboard />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="produtos" element={<Produtos />} />
-        <Route path="estoque" element={<Estoque />} />
-        <Route path="vendas" element={<Vendas />} />
-        <Route path="financeiro" element={<Financeiro />} />
+        <Route path="clientes" element={<PrivateRoute><Clientes /></PrivateRoute>} />
+        <Route path="produtos" element={<PrivateRoute><Produtos /></PrivateRoute>} />
+        <Route path="estoque" element={<PrivateRoute><Estoque /></PrivateRoute>} />
+        <Route path="vendas" element={<PrivateRoute><Vendas /></PrivateRoute>} />
+        <Route path="financeiro" element={<PrivateRoute><Financeiro /></PrivateRoute>} />
       </Route>
     </Routes>
   )
