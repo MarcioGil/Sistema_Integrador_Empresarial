@@ -36,25 +36,63 @@ Este trecho usa uma linguagem direta, foca nos problemas (Dor) e vende o Benefí
 
 ---
 
-## 🖼️ Tela de Login
 
-Veja abaixo a tela de login do sistema, conforme exibida no portal da Vercel:
+## 🔐 Credenciais de Teste
 
-<div align="center">
-  <img src="docs/screenshots/WhatsApp%20Image%202025-12-14%20at%2021.48.59.jpeg" alt="Tela de Login" width="400"/>
-</div>
+### Ambiente Online (Demo)
+- URL: https://sistema-integrador.vercel.app
+- Usuário: demo
+- Senha: demo123
+
+### Ambiente Local
+Ao rodar localmente, crie seu próprio usuário com:
+```bash
+python manage.py createsuperuser
+```
+Ou, para ambiente pré-preenchido (testes rápidos):
+- Usuário: admin
+- Senha: admin123 *(configure em backend/populate_db.py)*
 
 ---
 
-## 🔑 Acesso Demo e Login Local
+## 🖼️ Screenshots
 
-Caso o site principal esteja fora do ar, você pode acessar o sistema localmente para testes e demonstração:
+Adicione imagens reais dos módulos principais em docs/screenshots/ e use links relativos. Exemplo:
 
-1. Certifique-se de que o backend e o frontend estejam rodando em sua máquina (consulte as instruções de execução abaixo).
-2. Acesse o sistema pelo navegador em: [http://localhost:3000](http://localhost:3000) (frontend padrão).
-3. Utilize as seguintes credenciais demo para login:
-   - **Usuário:** demo
-   - **Senha:** demo123
+#### Login
+![Tela de Login](docs/screenshots/login.png)
+Autenticação JWT com validação em tempo real
+
+#### Dashboard
+![Dashboard Analítico](docs/screenshots/dashboard.png)
+*Métricas, gráficos e KPIs em tempo real*
+
+#### Clientes
+![Clientes](docs/screenshots/clientes.png)
+
+#### Produtos
+![Produtos](docs/screenshots/produtos.png)
+
+> **Dica:** Veja docs/screenshots/README.md para checklist e instruções de captura.
+
+---
+
+## 🚀 Demonstração Online
+
+> ⚠️ *Status*: Atualmente em deploy local. 
+> A versão online em Vercel/Railway está sendo reconstruída.
+> 
+> *Enquanto isso, teste localmente em 3 minutos:*
+> 
+> ```bash
+> git clone ...
+> cd backend && python -m venv venv && source venv/bin/activate
+> pip install -r requirements.txt
+> python manage.py migrate
+> python manage.py runserver
+> ```
+> 
+> Acesse: http://localhost:8000/api/docs
 
 Se encontrar dificuldades, consulte a documentação detalhada em [docs/FRONTEND_GUIDE.md](docs/FRONTEND_GUIDE.md) ou [docs/DEPLOY.md](docs/DEPLOY.md).
 
@@ -488,23 +526,34 @@ python manage.py runserver
 
 ## 💻 Uso
 
-### 1. Obter Token JWT
 
+### POST /api/token/ - Autenticação
+
+**Request:**
 ```bash
-POST http://127.0.0.1:8000/api/token/
-Content-Type: application/json
+curl -X POST http://127.0.0.1:8000/api/token/ \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+```
 
+**Response (200):**
+```json
 {
-  "username": "admin",
-  "password": "admin123"
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cCI...",
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsInR5cCI...",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@admin.com",
+    "role": "admin"
+  }
 }
 ```
 
-**Response:**
+**Response (401):**
 ```json
 {
-  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "access": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+  "detail": "Invalid credentials"
 }
 ```
 
@@ -649,22 +698,25 @@ Content-Type: application/json
 | GET | `/api/logs/` | Logs de auditoria (admin) |
 | GET | `/api/logs/{id}/` | Detalhes do log |
 
-> 💡 **Dica**: Consulte o arquivo `API_TESTS.http` para 47 exemplos completos de requisições!
+> 💡 **Dica**: Consulte o arquivo [`backend/API_TESTS.http`](backend/API_TESTS.http) para 47 exemplos completos de requisições!
 
 ---
 
-## 📖 Documentação
 
-### Swagger UI (Interativo)
+## 📖 Documentação Interativa
 
-Acesse **http://127.0.0.1:8000/api/docs/** para visualizar e testar todos os endpoints interativamente.
+### 🔹 Swagger UI (Recomendado para testes)
+- *URL Local*: [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/)
+- *Versão Online*: [https://sistema-integrador-production.up.railway.app/api/docs/](https://sistema-integrador-production.up.railway.app/api/docs/)
+- *Use para*: Testar endpoints interativamente, ver exemplos
+
+### 🔹 ReDoc (Recomendado para leitura)
+- *URL Local*: [http://localhost:8000/api/redoc/](http://localhost:8000/api/redoc/)
+- *Use para*: Ler documentação detalhada offline
+
+*Nota:* Ambas são geradas automaticamente de drf-spectacular ([Documentação drf-spectacular](https://drf-spectacular.readthedocs.io/))
 
 ![Swagger UI](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
-
-### ReDoc (Documentação Limpa)
-
-Acesse **http://127.0.0.1:8000/api/redoc/** para uma documentação mais limpa e organizada.
-
 ![ReDoc](https://img.shields.io/badge/ReDoc-339933?style=for-the-badge&logo=redoc&logoColor=white)
 
 ### Django Admin
