@@ -119,9 +119,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-            conn_health_checks=True,
-        )
-    }
+        # conn_health_checks=True,  # Removido ou ajuste conforme necessário
     }
 }
 

@@ -14,7 +14,10 @@ export default function Layout() {
     { path: '/produtos', icon: '📦', label: 'Produtos' },
     { path: '/estoque', icon: '📈', label: 'Estoque' },
     { path: '/vendas', icon: '💰', label: 'Vendas' },
-    { path: '/financeiro', icon: '💳', label: 'Financeiro' }
+    { path: '/financeiro', icon: '💳', label: 'Financeiro' },
+    { path: '/fornecedores', icon: '🏭', label: 'Fornecedores' },
+    { path: '/usuarios', icon: '👨‍💼', label: 'Usuários' },
+    { path: '/auditoria', icon: '📝', label: 'Auditoria' }
   ];
 
   const isActive = (path) => {

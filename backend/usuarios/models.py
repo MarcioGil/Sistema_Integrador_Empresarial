@@ -6,7 +6,7 @@ class Departamento(models.Model):
     """Model para departamentos da empresa"""
     
     nome = models.CharField('Nome', max_length=100, unique=True)
-    sigla = models.CharField('Sigla', max_length=10, unique=True)
+    sigla = models.CharField('Sigla', max_length=10, unique=True, default='PADRAO')
     descricao = models.TextField('Descrição', blank=True, null=True)
     responsavel = models.ForeignKey(
         'Usuario',

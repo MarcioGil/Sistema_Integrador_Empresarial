@@ -30,16 +30,14 @@ O projeto espera a API backend em `http://127.0.0.1:8000` (configurada por proxy
 
 ## O que está pronto
 
-- Login com JWT (formulário simples)
-- Layout básico com sidebar
-- Dashboard básico
-- Axios configurado com interceptor para Authorization header
+- Sistema completo de gestão com React + Vite + Tailwind
+- Autenticação e roteamento protegido
+- Todos os módulos implementados: Dashboard, Clientes, Produtos, Estoque, Vendas, Financeiro, Fornecedores, Usuários e Auditoria.
 
 ## Próximos passos
 
-- Implementar CRUD de clientes/produtos
-- Adicionar gráficos com Recharts
-- Melhorar UI/UX e temas
+- Realizar deploy para produção (Vercel)
+- Refinar testes de UI (Vitest)
 
 ## Capturas / GIFs
 

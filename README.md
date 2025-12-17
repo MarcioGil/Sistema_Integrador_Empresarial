@@ -97,11 +97,6 @@ Autenticação JWT com validação em tempo real
 Se encontrar dificuldades, consulte a documentação detalhada em [docs/FRONTEND_GUIDE.md](docs/FRONTEND_GUIDE.md) ou [docs/DEPLOY.md](docs/DEPLOY.md).
 
 
-## ✨ Valor para o Negócio (Para o Usuário Final)
-
-* **Controle de Fluxo de Caixa (Financeiro):** Receba alertas de faturas atrasadas e controle contas a pagar e receber em tempo real.
-* **Lucro Otimizado (Produtos):** Calcule a margem de lucro real de cada produto automaticamente.
-* **Fim dos Erros de Estoque (Estoque):** Receba alertas de reposição e gerencie o inventário com precisão.
 
 ## 👨‍💻 Sobre o Desenvolvedor
 
@@ -236,7 +231,7 @@ flowchart TD
 | ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=JSON-web-tokens&logoColor=white) | 5.3.1 | Autenticação |
 | ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat&logo=sqlite&logoColor=white) | 3.x | Banco de dados |
 
-### Frontend (Planejado - ETAPA 5)
+### Frontend (Implementado - ETAPA 5)
 
 | Tecnologia | Versão | Descrição |
 |-----------|--------|-----------|
@@ -427,12 +422,15 @@ Sistema_Integrador_Empresarial/
 │   ├── 📄 API_TESTS.http        # Testes HTTP (47 exemplos)
 │   └── 📄 populate_db.py        # Script de seed
 ├── 📂 frontend/                 # React App (ETAPA 5)
-│   └── (Em breve)
+│   ├── 📂 src/                  # Código fonte
+│   ├── 📂 public/               # Assets
+│   └── 📄 package.json          # Dependências JS
 ├── 📂 docs/                     # Documentação
 │   ├── PLANEJAMENTO.md          # Planejamento geral
 │   ├── DIAGRAMA_ER.md           # Diagrama ER
 │   ├── ETAPA_2_CONCLUIDA.md     # Conclusão ETAPA 2
 │   ├── ETAPA_3_CONCLUIDA.md     # Conclusão ETAPA 3
+│   ├── ETAPA_5_CONCLUIDA.md     # Conclusão ETAPA 5 (Frontend Completo)
 │   └── TAREFAS.md               # Lista de tarefas
 ├── 📄 README.md                 # Este arquivo
 ├── 📄 .gitignore                # Arquivos ignorados

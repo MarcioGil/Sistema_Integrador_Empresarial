@@ -7,6 +7,9 @@ import Produtos from './pages/Produtos.jsx'
 import Estoque from './pages/Estoque.jsx'
 import Vendas from './pages/Vendas.jsx'
 import Financeiro from './pages/Financeiro.jsx'
+import Fornecedores from './pages/Fornecedores.jsx'
+import Usuarios from './pages/Usuarios.jsx'
+import Auditoria from './pages/Auditoria.jsx'
 import Layout from './components/Layout.jsx'
 import PrivateRoute from './components/PrivateRoute.jsx'
 
@@ -21,6 +24,9 @@ export default function App() {
         <Route path="estoque" element={<PrivateRoute><Estoque /></PrivateRoute>} />
         <Route path="vendas" element={<PrivateRoute><Vendas /></PrivateRoute>} />
         <Route path="financeiro" element={<PrivateRoute><Financeiro /></PrivateRoute>} />
+        <Route path="fornecedores" element={<PrivateRoute><Fornecedores /></PrivateRoute>} />
+        <Route path="usuarios" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
+        <Route path="auditoria" element={<PrivateRoute><Auditoria /></PrivateRoute>} />
       </Route>
     </Routes>
   )
