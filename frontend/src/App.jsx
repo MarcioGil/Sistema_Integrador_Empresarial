@@ -12,10 +12,12 @@ import Usuarios from './pages/Usuarios.jsx'
 import Auditoria from './pages/Auditoria.jsx'
 import Layout from './components/Layout.jsx'
 import PrivateRoute from './components/PrivateRoute.jsx'
+import { ToastProvider } from './contexts/ToastContext.jsx'
 
 export default function App() {
   return (
-    <Routes>
+    <ToastProvider>
+      <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Dashboard />} />
@@ -27,7 +29,8 @@ export default function App() {
         <Route path="fornecedores" element={<PrivateRoute><Fornecedores /></PrivateRoute>} />
         <Route path="usuarios" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
         <Route path="auditoria" element={<PrivateRoute><Auditoria /></PrivateRoute>} />
-      </Route>
-    </Routes>
+        </Route>
+      </Routes>
+    </ToastProvider>
   )
 }

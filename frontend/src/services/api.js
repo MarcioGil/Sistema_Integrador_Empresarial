@@ -57,6 +57,38 @@ instance.interceptors.response.use(
       }
     }
 
+
+
+    // Feedback visual de erro Global (Toast)
+    if (error.response) {
+      const { status, data } = error.response
+      
+      // Erro de servidor ou permissão (exceto 401 que já é tratado)
+      if (status >= 500) {
+        window.dispatchEvent(new CustomEvent('toast', {
+          detail: { message: 'Erro interno do servidor. Tente novamente mais tarde.', type: 'error' }
+        }))
+      } else if (status === 403) {
+        window.dispatchEvent(new CustomEvent('toast', {
+          detail: { message: 'Você não tem permissão para realizar esta ação.', type: 'warning' }
+        }))
+      } else if (status === 404) {
+         // Opcional: avisar 404 ou deixar quieto dependendo da UX desejada. 
+         // Geralmente GET 404 é ok, mas ações tipo DELETE/UPDATE 404 são erros.
+         console.warn("Recurso não encontrado:", originalRequest.url);
+      } else if (status === 400 && data) {
+         // Erros de validação (opcional mostrar o primeiro)
+         // window.dispatchEvent(new CustomEvent('toast', {
+         //   detail: { message: 'Erro de validação. Verifique os dados.', type: 'error' }
+         // }))
+      }
+    } else if (error.request) {
+      // Erro de rede (sem resposta)
+      window.dispatchEvent(new CustomEvent('toast', {
+        detail: { message: 'Erro de conexão. Verifique sua internet.', type: 'error' }
+      }))
+    }
+
     return Promise.reject(error)
   }
 )

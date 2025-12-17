@@ -413,10 +413,14 @@ def main():
     print("\n⚠️  ATENÇÃO: Este script irá criar dados de exemplo no banco.")
     print("Execute apenas em ambiente de desenvolvimento ou demonstração!\n")
     
-    resposta = input("Deseja continuar? (s/N): ").strip().lower()
-    if resposta != 's':
-        print("❌ Operação cancelada.")
-        return
+    # Verificar flag de força para pular confirmação (usado no deploy)
+    if '--force' in sys.argv:
+        print("⚡ Modo força ativado: Pulando confirmação.")
+    else:
+        resposta = input("Deseja continuar? (s/N): ").strip().lower()
+        if resposta != 's':
+            print("❌ Operação cancelada.")
+            return
     
     try:
         # Criar usuário admin
